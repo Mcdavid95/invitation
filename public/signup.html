@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Pinyon+Script&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/app.css">
+<title>Create your account — Sealed</title>
+</head>
+<body class="auth">
+<a class="brand" href="/">Sealed</a>
+<form class="panel" id="auth" data-mode="signup" novalidate>
+  <h1>Create your account</h1>
+  <label>Your name<input name="name" autocomplete="name" required maxlength="80"></label>
+  <label>Email<input name="email" type="email" autocomplete="email" required></label>
+  <label>Password<input name="password" type="password" autocomplete="new-password" required minlength="8"></label>
+  <p class="hint">At least 8 characters.</p>
+  <p class="error" role="alert"></p>
+  <button class="button big" type="submit">Create your account</button>
+  <p class="alt">Already have an account? <a href="/login">Sign in</a></p>
+</form>
+<script type="module" src="/assets/auth.js"></script>
+</body>
+</html>

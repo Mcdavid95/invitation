@@ -1,0 +1,29 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "invitation",
+  "main": "src/worker.js",
+  "compatibility_date": "2025-09-01",
+  "workers_dev": true,
+  "preview_urls": false,
+  "build": {
+    "command": "node scripts/build-assets.js",
+    "watch_dir": "public"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "invitation",
+      "database_id": "8d56e1a7-6e70-495a-bf4b-295951e5d69b",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "MEDIA",
+      "bucket_name": "invitation-media"
+    }
+  ],
+  "observability": {
+    "enabled": true
+  }
+}

@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="format-detection" content="telephone=no">
+<meta property="og:title" content="You are invited">
+<meta property="og:type" content="website">
+<title>Invitation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link id="fonts" rel="stylesheet">
+<link rel="stylesheet" href="/assets/invite.css">
+</head>
+<body class="locked">
+
+<svg width="0" height="0" class="sprite" aria-hidden="true">
+  <defs>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" class="g-a"/><stop offset=".5" class="g-b"/><stop offset="1" class="g-a"/>
+    </linearGradient>
+    <radialGradient id="petal" cx=".5" cy=".9" r=".9">
+      <stop offset="0" class="p-a"/><stop offset=".6" class="p-b"/><stop offset="1" class="p-c"/>
+    </radialGradient>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" class="s-a"/><stop offset=".5" class="s-b"/><stop offset=".69" class="s-c"/><stop offset=".72" class="s-b"/><stop offset="1" class="s-d"/>
+    </linearGradient>
+    <radialGradient id="sun" cx=".5" cy=".5" r=".5">
+      <stop offset="0" class="u-a"/><stop offset=".4" class="u-b"/><stop offset="1" class="u-c"/>
+    </radialGradient>
+    <linearGradient id="stone" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" class="w-a"/><stop offset=".5" class="w-b"/><stop offset="1" class="w-a"/>
+    </linearGradient>
+
+    <symbol id="divider" viewBox="0 0 160 14">
+      <g fill="none" stroke="currentColor" stroke-width=".8" stroke-linecap="round">
+        <path d="M2 7h58M100 7h58"/>
+        <path d="M66 7c4-5 8-5 14 0-6 5-10 5-14 0zM94 7c-4-5-8-5-14 0 6 5 10 5 14 0z"/>
+      </g>
+      <path d="M80 2.5 83 7l-3 4.5L77 7z" fill="currentColor"/>
+      <circle cx="62" cy="7" r="1" fill="currentColor"/><circle cx="98" cy="7" r="1" fill="currentColor"/>
+    </symbol>
+
+    <symbol id="flower" viewBox="-30 -30 60 60">
+      <g fill="url(#petal)" class="petal-line" stroke-width=".6">
+        <g id="ring-a">
+          <ellipse cy="-16" rx="9" ry="13"/>
+          <ellipse cy="-16" rx="9" ry="13" transform="rotate(45)"/>
+          <ellipse cy="-16" rx="9" ry="13" transform="rotate(90)"/>
+          <ellipse cy="-16" rx="9" ry="13" transform="rotate(135)"/>
+          <ellipse cy="-16" rx="9" ry="13" transform="rotate(180)"/>
+          <ellipse cy="-16" rx="9" ry="13" transform="rotate(225)"/>
+          <ellipse cy="-16" rx="9" ry="13" transform="rotate(270)"/>
+          <ellipse cy="-16" rx="9" ry="13" transform="rotate(315)"/>
+        </g>
+        <use href="#ring-a" transform="rotate(22.5) scale(.66)"/>
+        <use href="#ring-a" transform="scale(.38)"/>
+      </g>
+      <circle r="3" class="petal-core"/>
+    </symbol>
+
+    <symbol id="sprig" viewBox="0 0 60 120">
+      <g fill="none" stroke="currentColor" stroke-linecap="round">
+        <path d="M30 118C28 80 34 40 30 4"/>
+        <path d="M30 96c-10-2-16-8-18-16 9 0 15 5 18 12M30 82c10-2 16-8 18-16-9 0-15 5-18 12M30 62c-9-2-14-7-16-14 8 0 13 4 16 10M30 48c9-2 14-7 16-14-8 0-13 4-16 10M30 30c-7-2-10-6-12-11 6 0 10 3 12 8M30 20c6-2 9-5 10-10-5 0-8 3-10 7"/>
+      </g>
+    </symbol>
+
+    <symbol id="lantern" viewBox="0 0 30 150">
+      <path d="M15 0v84" class="lan-line" stroke-width="1"/>
+      <path d="M11 84h8l2 6H9z" class="lan-fill"/>
+      <path d="M8 90h14l3 30-5 14H10l-5-14z" class="lan-glass" stroke-width="1.2"/>
+      <path d="M15 90v44M8 90l2 44M22 90l-2 44" class="lan-line" stroke-width=".7" fill="none"/>
+      <ellipse cx="15" cy="112" rx="5" ry="12" class="lan-glow"/>
+      <path d="M12 134h6l-3 8z" class="lan-fill"/>
+    </symbol>
+
+    <g id="icon-style" fill="none" stroke="url(#gold)" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"></g>
+    <symbol id="i-arch" viewBox="0 0 64 64"><g fill="none" stroke="url(#gold)" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M14 58V28c0-10 8-14 18-22 10 8 18 12 18 22v30z"/><path d="M22 58V30c0-6 4-9 10-14 6 5 10 8 10 14v28"/><path d="M8 58h48M32 6V2"/></g></symbol>
+    <symbol id="i-bride" viewBox="0 0 64 64"><g fill="none" stroke="url(#gold)" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round">
+      <circle cx="32" cy="12" r="6"/><path d="M28 18c-4 6-3 12 0 16L14 58h36L36 34c3-4 4-10 0-16"/><path d="M27 9C16 16 12 36 10 54M37 9c11 7 15 27 17 45M28 34h8"/></g></symbol>
+    <symbol id="i-crescent" viewBox="0 0 64 64"><g fill="none" stroke="url(#gold)" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M40 10a24 24 0 1 0 14 34A19 19 0 0 1 40 10z"/><path d="m46 22 2 5h5l-4 3 2 5-5-3-4 3 1-5-4-3h5z"/></g></symbol>
+    <symbol id="i-cloche" viewBox="0 0 64 64"><g fill="none" stroke="url(#gold)" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M8 46a24 24 0 0 1 48 0zM4 46h56M10 52h44"/><circle cx="32" cy="18" r="3"/><path d="M18 38a15 15 0 0 1 9-10"/></g></symbol>
+    <symbol id="i-sparkle" viewBox="0 0 64 64"><g fill="none" stroke="url(#gold)" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M28 10c2 12 6 16 18 18-12 2-16 6-18 18-2-12-6-16-18-18 12-2 16-6 18-18z"/><path d="M48 38c1 6 3 8 9 9-6 1-8 3-9 9-1-6-3-8-9-9 6-1 8-3 9-9zM50 8v8M46 12h8"/></g></symbol>
+    <symbol id="i-rings" viewBox="0 0 64 64"><g fill="none" stroke="url(#gold)" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round">
+      <circle cx="24" cy="38" r="15"/><circle cx="41" cy="38" r="15"/><path d="M24 23l-5-7 5-5 5 5z"/></g></symbol>
+    <symbol id="i-heart" viewBox="0 0 64 64"><g fill="none" stroke="url(#gold)" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M32 54C12 40 8 29 8 21a12 12 0 0 1 24-5 12 12 0 0 1 24 5c0 8-4 19-24 33z"/><path d="M16 22a5 5 0 0 1 5-6"/></g></symbol>
+    <symbol id="i-glass" viewBox="0 0 64 64"><g fill="none" stroke="url(#gold)" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M12 8h14l-1 20a6 6 0 0 1-12 0zM19 34v20M12 56h14M12.500 18h13"/><path d="M38 8h14l-1 20a6 6 0 0 1-12 0zM45 34v20M38 56h14M38.500 18h13"/><path d="M32 4v4M29 12h6"/></g></symbol>
+    <symbol id="i-cake" viewBox="0 0 64 64"><g fill="none" stroke="url(#gold)" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M10 56h44V43H10zM17 43V31h30v12M24 31V21h16v10M32 21v-7"/><path d="M32 14c-3-3 0-6 0-9 3 3 3 6 0 9zM10 49c4 3 7 3 11 0s7-3 11 0 7 3 11 0 7-3 11 0"/></g></symbol>
+    <symbol id="i-music" viewBox="0 0 64 64"><g fill="none" stroke="url(#gold)" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M24 46V16l26-7v31M24 25l26-7"/><circle cx="17" cy="46" r="7"/><circle cx="43" cy="40" r="7"/></g></symbol>
+  </defs>
+</svg>
+
+<template id="tpl-scene">
+  <svg class="scene" viewBox="0 0 390 780" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <g class="l-sky"><rect width="390" height="780" fill="url(#sky)"/></g>
+    <g class="l-skyline">
+      <circle cx="286" cy="520" r="130" fill="url(#sun)"/>
+      <g id="skyline" class="skyline">
+        <rect x="60" y="500" width="270" height="46"/>
+        <path d="M150 500c-6-34 12-56 45-66 33 10 51 32 45 66z"/>
+        <path d="M195 434v-18" fill="none"/>
+        <path d="M92 500c-3-14 5-24 18-28 13 4 21 14 18 28zM262 500c-3-14 5-24 18-28 13 4 21 14 18 28z"/>
+        <path d="M72 546V420l5-14 5 14v126zM308 546V420l5-14 5 14v126z"/>
+        <path d="M70 446h14M70 472h14M306 446h14M306 472h14" fill="none"/>
+        <path class="doors" d="M100 546v-22a8 8 0 0 1 16 0v22M128 546v-22a8 8 0 0 1 16 0v22M187 546v-26a8 8 0 0 1 16 0v26M246 546v-22a8 8 0 0 1 16 0v22M274 546v-22a8 8 0 0 1 16 0v22"/>
+      </g>
+      <use href="#skyline" transform="matrix(1 0 0 -.7 0 928)" opacity=".28"/>
+    </g>
+    <g class="l-frame">
+      <path fill="url(#stone)" fill-rule="evenodd" d="M0 0h390v780H0zM52 780V330c0-22 12-30 22-44-6-26 10-40 28-52-2-24 16-36 36-48 6-26 34-38 57-70 23 32 51 44 57 70 20 12 38 24 36 48 18 12 34 26 28 52 10 14 22 22 22 44v450z"/>
+      <g fill="none" stroke="url(#gold)">
+        <path stroke-width="2" d="M52 780V330c0-22 12-30 22-44-6-26 10-40 28-52-2-24 16-36 36-48 6-26 34-38 57-70 23 32 51 44 57 70 20 12 38 24 36 48 18 12 34 26 28 52 10 14 22 22 22 44v450"/>
+        <path stroke-width=".8" opacity=".7" d="M40 780V326c0-24 12-34 20-46-4-28 12-44 30-56 0-26 18-40 38-52 8-28 40-44 67-80 27 36 59 52 67 80 20 12 38 26 38 52 18 12 34 28 30 56 8 12 20 22 20 46v454"/>
+      </g>
+      <use href="#lantern" x="6" y="0" width="34" height="170"/>
+      <use href="#lantern" x="350" y="0" width="34" height="170"/>
+    </g>
+    <g class="l-flowers">
+      <use href="#flower" x="-14" y="-12" width="96" height="96"/><use href="#flower" x="52" y="6" width="58" height="58"/>
+      <use href="#flower" x="308" y="-12" width="96" height="96"/><use href="#flower" x="280" y="6" width="58" height="58"/>
+      <use href="#flower" x="-20" y="690" width="100" height="100"/><use href="#flower" x="310" y="690" width="100" height="100"/>
+    </g>
+  </svg>
+</template>
+
+<div id="root"></div>
+
+<script type="application/json" id="invite-data"></script>
+<script type="module" src="/assets/invite.js"></script>
+</body>
+</html>
