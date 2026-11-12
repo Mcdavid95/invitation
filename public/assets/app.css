@@ -79,6 +79,7 @@ textarea { resize: vertical; }
 .modal legend { font-size: 14px; font-weight: 600; padding: 0; margin-bottom: 6px; }
 .two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .starters { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.modal { width: min(94vw, 600px); }
 .starter { border: 1px solid var(--line); border-radius: 12px; padding: 12px; cursor: pointer; text-align: center; margin: 0 !important; }
 .starter:has(input:checked) { border-color: var(--gold); box-shadow: 0 0 0 2px var(--gold); }
 .starter input { position: absolute; opacity: 0; }
@@ -131,7 +132,18 @@ details[open] > summary > span:first-child::before { content: '▾'; }
 .switch input:checked + i::after { transform: translateX(16px); }
 .switch input:focus-visible + i { outline: 2px solid var(--ink); outline-offset: 2px; }
 .palettes, .fonts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-.palette, .font { border: 1px solid var(--line); background: #fff; border-radius: 10px; padding: 8px 4px; cursor: pointer; font-size: 12px; display: grid; gap: 6px; justify-items: center; color: var(--ink); }
+.tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.tile { border: 1px solid var(--line, #e6dccd); background: #fff; border-radius: 10px; padding: 8px 4px; cursor: pointer; font-size: 12px; color: #2f2a22; display: grid; gap: 5px; justify-items: center; min-height: 44px; align-content: center; overflow: hidden; }
+.tile.on { border-color: #a67f3d; box-shadow: 0 0 0 2px #a67f3d; }
+.tiles.scenes .tile { padding: 0 0 6px; }
+.tile svg { width: 100%; aspect-ratio: 3 / 2.6; display: block; background: var(--bg); }
+.tracks { display: grid; gap: 6px; margin-bottom: 10px; }
+.track { display: flex; align-items: center; gap: 8px; border: 1px solid #e6dccd; border-radius: 10px; padding: 4px 6px; background: #fff; }
+.track.on { border-color: #a67f3d; box-shadow: 0 0 0 2px #a67f3d; }
+.track .play { width: 34px; height: 34px; flex: none; border-radius: 50%; border: 1px solid #cfc3b0; background: #fbf7f1; cursor: pointer; font-size: 12px; color: #8a6728; }
+.track .play.none { border: 0; background: none; }
+.track .pick { flex: 1; text-align: left; background: none; border: 0; padding: 8px 4px; font: inherit; font-size: 14px; cursor: pointer; color: inherit; }
+.palette, .font { min-width: 0; border: 1px solid var(--line); background: #fff; border-radius: 10px; padding: 8px 4px; cursor: pointer; font-size: 12px; display: grid; gap: 6px; justify-items: center; color: var(--ink); }
 .palette.on, .font.on { border-color: var(--gold); box-shadow: 0 0 0 2px var(--gold); }
 .dots { display: flex; }
 .dots i { width: 16px; height: 16px; border-radius: 50%; border: 1px solid rgba(0, 0, 0, .15); margin-left: -4px; }

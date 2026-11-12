@@ -1,4 +1,5 @@
-import { FONTS, monogramOf, inviteTitle, SAMPLE } from './schema.js';
+import { FONTS, INTROS, monogramOf, inviteTitle, SAMPLE } from './schema.js';
+import { SCENE_ART, FRAME_ART } from './scenes.js';
 
 const SVG = 'http://www.w3.org/2000/svg';
 const root = document.getElementById('root');
@@ -347,12 +348,13 @@ function rsvpDialog(s) {
 function hero(cfg) {
   const c = cfg.hero;
   const scene = document.getElementById('tpl-scene').content.firstElementChild.cloneNode(true);
+  // Scene and frame markup comes only from the constants in scenes.js, never from the invitation's content.
   if (c.media) scene.querySelector('.l-sky').remove();
-  if (c.media || c.scene !== 'skyline') scene.querySelector('.l-skyline').remove();
-  if (!c.frame) scene.querySelector('.l-frame').remove();
-  if (c.media && !c.frame) scene.querySelector('.l-flowers').remove();
+  else scene.querySelector('.l-scene').innerHTML = (SCENE_ART[c.scene] ?? SCENE_ART.sky)();
+  scene.querySelector('.l-frame').innerHTML = (FRAME_ART[c.frame] ?? FRAME_ART.none)();
+  if (c.media && c.frame === 'none') scene.querySelector('.l-flowers').remove();
   const title = inviteTitle(cfg);
-  return h('section', { class: `hero ${c.media ? 'has-media' : ''} ${c.frame ? 'framed' : ''}` },
+  return h('section', { class: `hero ${c.media ? 'has-media' : ''} frame-${c.frame}` },
     mediaEl(c.media, 'hero-media'), scene,
     h('div', { class: 'hero-text' },
       c.showMonogram ? mono(cfg, 'hero-mono') : null,
@@ -373,10 +375,33 @@ function chevron() {
   return svg;
 }
 
+// How long each opening runs before the layer can be removed, in ms.
+const INTRO_MS = { envelope: 2500, doors: 2700, curtain: 2700, heart: 2500, ribbon: 2600, petals: 3200 };
+const INTRO_PARTS = {
+  envelope: () => ['bottom', 'left', 'right', 'top'].map((side) => h('div', { class: `flap-wrap ${side}` }, h('div', { class: 'flap' }, use('sprig', 'emboss')))),
+  doors: () => ['l', 'r'].map((side) => h('div', { class: `leaf ${side}` }, h('i'), h('i'), h('b'))),
+  curtain: () => [h('div', { class: 'drape l' }), h('div', { class: 'drape r' }), h('div', { class: 'valance' })],
+  heart: () => ['l', 'r'].map((side) => h('div', { class: `half ${side}` }, use('bigheart', 'art'))),
+  ribbon: () => [h('div', { class: 'wrap' }), h('div', { class: 'band v' }), h('div', { class: 'band h' }), use('bow', 'bow')],
+  petals: () => {
+    const ring = Array.from({ length: 14 }, (_, i) => {
+      const a = (i / 14) * 2 * Math.PI;
+      const d = i % 2 ? 46 : 60;
+      return ['flower', { x: 160 + 118 * Math.cos(a) - d / 2, y: 160 + 118 * Math.sin(a) - d / 2, width: d, height: d }];
+    });
+    // Fixed pseudo-random spread so the fall looks the same on every open.
+    const petals = Array.from({ length: 26 }, (_, i) => {
+      const r = (n) => ((i * 9301 + n * 49297) % 233280) / 233280;
+      return h('i', { class: 'petal', style: `--x:${(r(1) * 96).toFixed(1)}%;--s:${(14 + r(2) * 16).toFixed(0)}px;--dx:${((r(3) - 0.5) * 160).toFixed(0)}px;--r:${(180 + r(4) * 540).toFixed(0)}deg;--d:${(1.7 + r(5) * 1.2).toFixed(2)}s;--w:${(r(6) * 0.9).toFixed(2)}s` });
+    });
+    return [h('div', { class: 'veil' }), use(ring, 'wreath', '0 0 320 320'), petals];
+  },
+};
+
 function intro(cfg, onOpen) {
-  const flap = (side) => h('div', { class: `flap-wrap ${side}` }, h('div', { class: 'flap' }, use('sprig', 'emboss')));
-  const el = h('div', { id: 'intro', role: 'button', tabIndex: 0, ariaLabel: 'Open the invitation' },
-    h('div', { class: 'env-glow' }), flap('bottom'), flap('left'), flap('right'), flap('top'),
+  const style = INTROS[cfg.intro.style] ? cfg.intro.style : 'envelope';
+  const el = h('div', { id: 'intro', class: `intro-${style}`, role: 'button', tabIndex: 0, ariaLabel: 'Open the invitation' },
+    style === 'petals' ? null : h('div', { class: 'intro-back' }), INTRO_PARTS[style](),
     h('div', { class: 'seal' }, mono(cfg, '')), para(cfg.intro.label, 'tap'));
   const open = () => {
     if (el.classList.contains('open')) return;
@@ -385,6 +410,8 @@ function intro(cfg, onOpen) {
     el.removeAttribute('tabindex');
     document.body.classList.remove('locked');
     onOpen();
+    // Drop the layers once they are invisible so they stop costing memory while the guest scrolls.
+    setTimeout(() => el.remove(), INTRO_MS[style] + 400);
   };
   el.addEventListener('click', open);
   el.addEventListener('keydown', (e) => {
@@ -446,7 +473,9 @@ export function render(cfg, opts = {}) {
   const startMusic = () => cfg.music.autoplay && audio?.play().catch(() => {});
   const showIntro = cfg.intro.enabled && opts.intro !== false;
   document.body.classList.toggle('locked', showIntro);
-  root.replaceChildren(...[showIntro ? intro(cfg, startMusic) : null, main, music].filter(Boolean));
+  const enter = () => main.classList.add('entered');
+  root.replaceChildren(...[showIntro ? intro(cfg, () => (enter(), startMusic())) : null, main, music].filter(Boolean));
+  if (!showIntro) requestAnimationFrame(() => requestAnimationFrame(enter));
   if (!showIntro && music && !mode.preview) addEventListener('pointerdown', startMusic, { once: true });
 
   observer = new IntersectionObserver((entries) => {
@@ -456,7 +485,7 @@ export function render(cfg, opts = {}) {
         observer.unobserve(e.target);
       }
     }
-  }, { threshold: 0.12 });
+  }, { threshold: 0.1, rootMargin: '0px 0px -6% 0px' });
   for (const n of main.querySelectorAll('.reveal')) observer.observe(n);
 }
 

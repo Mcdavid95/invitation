@@ -9,7 +9,8 @@
     "deploy": "wrangler deploy",
     "db:migrate:local": "wrangler d1 migrations apply DB --local",
     "db:migrate": "wrangler d1 migrations apply DB --remote",
-    "test": "node --test \"test/*.test.js\""
+    "test": "node --test \"test/*.test.js\"",
+    "sounds:upload": "for f in sounds/*.mp3; do wrangler r2 object put \"invitation-media/sounds/$(basename $f)\" --file \"$f\" --content-type audio/mpeg --remote; done"
   },
   "devDependencies": {
     "wrangler": "^4"

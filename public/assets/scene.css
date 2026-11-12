@@ -1,0 +1,13 @@
+/* Colours for the cover illustrations. Shared by the invitation and the editor's scene picker. */
+.sc-a { fill: color-mix(in srgb, var(--accent) 16%, var(--bg)); }
+.sc-b { fill: color-mix(in srgb, var(--accent) 30%, var(--bg)); }
+.sc-c { fill: color-mix(in srgb, var(--accent) 46%, var(--bg)); }
+.sc-d { fill: color-mix(in srgb, var(--accent) 62%, var(--bg)); }
+.sc-p { fill: var(--paper); stroke: color-mix(in srgb, var(--accent) 50%, var(--bg)); stroke-width: .8; }
+.sc-line { fill: none; stroke: color-mix(in srgb, var(--accent) 55%, var(--bg)); stroke-width: 1; stroke-linecap: round; }
+.sc-water { fill: color-mix(in srgb, var(--accent) 12%, var(--bg)); }
+.sc-cloud { fill: color-mix(in srgb, var(--accent) 16%, var(--paper)); opacity: .8; }
+.sc-star { fill: color-mix(in srgb, var(--accent) 75%, var(--bg)); }
+.sc-win { fill: color-mix(in srgb, var(--accent) 12%, var(--bg)); }
+.sc-branch { fill: none; stroke: color-mix(in srgb, var(--accent) 45%, var(--bg)); stroke-width: 2.4; stroke-linecap: round; }
+.sc-petal { fill: color-mix(in srgb, var(--accent) 35%, var(--paper)); }

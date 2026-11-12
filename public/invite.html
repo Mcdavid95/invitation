@@ -10,6 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link id="fonts" rel="stylesheet">
+<link rel="stylesheet" href="/assets/scene.css">
 <link rel="stylesheet" href="/assets/invite.css">
 </head>
 <body class="locked">
@@ -75,7 +76,20 @@
       <path d="M12 134h6l-3 8z" class="lan-fill"/>
     </symbol>
 
-    <g id="icon-style" fill="none" stroke="url(#gold)" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"></g>
+    <symbol id="bigheart" viewBox="0 0 390 780" preserveAspectRatio="xMidYMid slice">
+      <path d="M195 478C108 418 76 356 76 310a60 60 0 0 1 119-22 60 60 0 0 1 119 22c0 46-32 108-119 168z" fill="url(#gold)"/>
+      <path d="M195 458C122 404 94 350 94 311a42 42 0 0 1 84-8l17 34 17-34a42 42 0 0 1 84 8c0 39-28 93-101 147z" fill="none" class="heart-line" stroke-width="1.2"/>
+      <use href="#sprig" x="165" y="96" width="60" height="120" class="heart-sprig"/>
+      <use href="#sprig" x="165" y="520" width="60" height="120" class="heart-sprig" transform="rotate(180 195 580)"/>
+    </symbol>
+    <symbol id="bow" viewBox="0 0 230 150">
+      <g fill="url(#gold)" class="bow-line" stroke-width="1">
+        <path d="M108 78 78 142l18-10 12 16 12-64z"/><path d="M122 78l30 64-18-10-12 16-12-64z"/>
+        <path d="M115 62C80 20 30 10 14 34 0 58 30 92 115 78z"/><path d="M115 62c35-42 85-52 101-28 14 24-16 58-101 44z"/>
+        <rect x="100" y="54" width="30" height="32" rx="9"/>
+      </g>
+      <g fill="none" class="bow-line" stroke-width="1" opacity=".6"><path d="M100 66C74 44 44 36 30 46M130 66c26-22 56-30 70-20"/></g>
+    </symbol>
     <symbol id="i-arch" viewBox="0 0 64 64"><g fill="none" stroke="url(#gold)" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round">
       <path d="M14 58V28c0-10 8-14 18-22 10 8 18 12 18 22v30z"/><path d="M22 58V30c0-6 4-9 10-14 6 5 10 8 10 14v28"/><path d="M8 58h48M32 6V2"/></g></symbol>
     <symbol id="i-bride" viewBox="0 0 64 64"><g fill="none" stroke="url(#gold)" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round">
@@ -102,28 +116,8 @@
 <template id="tpl-scene">
   <svg class="scene" viewBox="0 0 390 780" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
     <g class="l-sky"><rect width="390" height="780" fill="url(#sky)"/></g>
-    <g class="l-skyline">
-      <circle cx="286" cy="520" r="130" fill="url(#sun)"/>
-      <g id="skyline" class="skyline">
-        <rect x="60" y="500" width="270" height="46"/>
-        <path d="M150 500c-6-34 12-56 45-66 33 10 51 32 45 66z"/>
-        <path d="M195 434v-18" fill="none"/>
-        <path d="M92 500c-3-14 5-24 18-28 13 4 21 14 18 28zM262 500c-3-14 5-24 18-28 13 4 21 14 18 28z"/>
-        <path d="M72 546V420l5-14 5 14v126zM308 546V420l5-14 5 14v126z"/>
-        <path d="M70 446h14M70 472h14M306 446h14M306 472h14" fill="none"/>
-        <path class="doors" d="M100 546v-22a8 8 0 0 1 16 0v22M128 546v-22a8 8 0 0 1 16 0v22M187 546v-26a8 8 0 0 1 16 0v26M246 546v-22a8 8 0 0 1 16 0v22M274 546v-22a8 8 0 0 1 16 0v22"/>
-      </g>
-      <use href="#skyline" transform="matrix(1 0 0 -.7 0 928)" opacity=".28"/>
-    </g>
-    <g class="l-frame">
-      <path fill="url(#stone)" fill-rule="evenodd" d="M0 0h390v780H0zM52 780V330c0-22 12-30 22-44-6-26 10-40 28-52-2-24 16-36 36-48 6-26 34-38 57-70 23 32 51 44 57 70 20 12 38 24 36 48 18 12 34 26 28 52 10 14 22 22 22 44v450z"/>
-      <g fill="none" stroke="url(#gold)">
-        <path stroke-width="2" d="M52 780V330c0-22 12-30 22-44-6-26 10-40 28-52-2-24 16-36 36-48 6-26 34-38 57-70 23 32 51 44 57 70 20 12 38 24 36 48 18 12 34 26 28 52 10 14 22 22 22 44v450"/>
-        <path stroke-width=".8" opacity=".7" d="M40 780V326c0-24 12-34 20-46-4-28 12-44 30-56 0-26 18-40 38-52 8-28 40-44 67-80 27 36 59 52 67 80 20 12 38 26 38 52 18 12 34 28 30 56 8 12 20 22 20 46v454"/>
-      </g>
-      <use href="#lantern" x="6" y="0" width="34" height="170"/>
-      <use href="#lantern" x="350" y="0" width="34" height="170"/>
-    </g>
+    <g class="l-scene"></g>
+    <g class="l-frame"></g>
     <g class="l-flowers">
       <use href="#flower" x="-14" y="-12" width="96" height="96"/><use href="#flower" x="52" y="6" width="58" height="58"/>
       <use href="#flower" x="308" y="-12" width="96" height="96"/><use href="#flower" x="280" y="6" width="58" height="58"/>

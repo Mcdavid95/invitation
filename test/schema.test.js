@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { sanitizeConfig, starterConfig, SAMPLE, mediaKind, monogramOf, inviteTitle, LIMITS } from '../public/assets/schema.js';
+import { sanitizeConfig, starterConfig, SAMPLE, mediaKind, monogramOf, inviteTitle, LIMITS, STARTER_LIST, INTROS, SCENES, FONTS, SOUNDS } from '../public/assets/schema.js';
+import { SCENE_ART, FRAME_ART } from '../public/assets/scenes.js';
 
 test('a starter config survives sanitising unchanged', () => {
   const cfg = SAMPLE();
@@ -73,5 +74,27 @@ test('mediaKind only recognises uploaded files', () => {
 });
 
 test('every starter builds', () => {
-  for (const s of ['timeless', 'garden', 'midnight', 'unknown']) assert.equal(starterConfig(s).sections.length, 10);
+  for (const s of [...STARTER_LIST.map((x) => x.id), 'unknown']) assert.equal(starterConfig(s).sections.length, 10);
+});
+
+test('design options meet the promised minimums and every scene and frame has artwork', () => {
+  assert.ok(Object.keys(INTROS).length >= 5);
+  assert.ok(Object.keys(SCENES).length >= 10);
+  assert.ok(Object.keys(FONTS).length >= 10);
+  for (const id of Object.keys(SCENES)) assert.match(SCENE_ART[id](), /<(path|circle|g|rect)/);
+  for (const id of ['arch', 'round', 'oval', 'none']) assert.equal(typeof FRAME_ART[id](), 'string');
+});
+
+test('invitations saved before frames and opening styles existed still load', () => {
+  assert.equal(sanitizeConfig({ hero: { frame: true } }).hero.frame, 'arch');
+  assert.equal(sanitizeConfig({ hero: { frame: false } }).hero.frame, 'none');
+  assert.equal(sanitizeConfig({ intro: { enabled: true } }).intro.style, 'envelope');
+  assert.equal(sanitizeConfig({ intro: { style: 'trapdoor' }, hero: { scene: 'volcano' } }).intro.style, 'envelope');
+});
+
+test('music accepts built-in tracks and uploads, nothing else', () => {
+  const url = (u) => sanitizeConfig({ music: { url: u } }).music.url;
+  for (const id of Object.keys(SOUNDS)) assert.equal(url(`/sounds/${id}.mp3`), `/sounds/${id}.mp3`);
+  assert.equal(url('/media/abcdefgh1234/abcdefgh1234.mp3'), '/media/abcdefgh1234/abcdefgh1234.mp3');
+  for (const bad of ['/sounds/unknown.mp3', '/sounds/../x.mp3', '/sounds/canon.mp3?x', 'https://example.com/a.mp3', '/sounds/constructor.mp3']) assert.equal(url(bad), '');
 });

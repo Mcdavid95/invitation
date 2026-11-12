@@ -44,61 +44,144 @@ h2.script { font-size: 40px; line-height: 1.1; margin: 0; overflow-wrap: anywher
 .s-b { stop-color: color-mix(in srgb, var(--accent) 6%, var(--bg)); }
 .s-c { stop-color: color-mix(in srgb, var(--accent-hi) 30%, var(--bg)); }
 .s-d { stop-color: var(--bg); }
-.u-a { stop-color: color-mix(in srgb, var(--accent-hi) 40%, #fff); }
+.u-a { stop-color: color-mix(in srgb, var(--accent-hi) 40%, #fff); stop-opacity: .85; }
 .u-b { stop-color: var(--accent-hi); stop-opacity: .35; } .u-c { stop-color: var(--accent-hi); stop-opacity: 0; }
 .w-a { stop-color: var(--env-dark); } .w-b { stop-color: var(--paper); }
-.skyline { fill: var(--paper); stroke: var(--line); stroke-width: .8; }
-.skyline .doors { fill: color-mix(in srgb, var(--accent) 22%, var(--paper)); }
 .lan-line { stroke: var(--accent); } .lan-fill { fill: var(--accent); }
 .lan-glass { fill: color-mix(in srgb, var(--accent-hi) 60%, var(--paper)); stroke: var(--accent); }
 .lan-glow { fill: color-mix(in srgb, var(--accent-hi) 30%, #fff); }
 
-/* ---------- Envelope intro ---------- */
+/* ---------- Opening moment ----------
+   Only transform and opacity are animated, so every style runs on the compositor. */
 #intro {
-  position: fixed; inset: 0; z-index: 50; margin: 0 auto; max-width: 430px;
-  background: var(--env-dark); cursor: pointer; overflow: hidden; perspective: 1400px;
-  transition: opacity 1s ease 1.5s, visibility 0s linear 2.5s; -webkit-tap-highlight-color: transparent;
+  --cy: 46%; --hold: 1.5s;
+  position: fixed; inset: 0; z-index: 50; margin: 0 auto; max-width: 430px; cursor: pointer; overflow: hidden;
+  perspective: 1400px; contain: layout paint; -webkit-tap-highlight-color: transparent;
+  transition: opacity .9s ease var(--hold), visibility 0s linear calc(var(--hold) + .9s);
 }
+#intro > * { will-change: transform, opacity; }
 #intro:focus-visible { outline: 3px solid var(--accent); outline-offset: -6px; }
-.env-glow { position: absolute; inset: 0; background: radial-gradient(circle at 50% 55%, color-mix(in srgb, var(--accent-hi) 35%, #fff) 0, var(--accent-hi) 30%, transparent 65%); opacity: 0; transition: opacity 1s ease .5s; }
-.flap-wrap { position: absolute; inset: 0; filter: drop-shadow(0 2px 5px var(--shadow)); transition: transform 1.5s cubic-bezier(.6, 0, .3, 1) .45s, opacity 1.2s ease .9s; }
+#intro.open { opacity: 0; visibility: hidden; pointer-events: none; }
+.intro-back { position: absolute; inset: 0; background: var(--env-dark); }
+.intro-back::after { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 50% 55%, color-mix(in srgb, var(--accent-hi) 35%, #fff) 0, var(--accent-hi) 30%, transparent 65%); opacity: 0; transition: opacity 1s ease .4s; }
+#intro.open .intro-back::after { opacity: 1; }
+/* Everything except the envelope opens onto the invitation itself, so the backdrop clears as the pieces part. */
+#intro:not(.intro-envelope) .intro-back { transition: opacity .9s ease .75s; }
+#intro.open:not(.intro-envelope) .intro-back { opacity: 0; }
+
+.seal {
+  position: absolute; left: 50%; top: var(--cy); z-index: 3; width: 124px; height: 124px; margin: -62px 0 0 -62px;
+  border-radius: 46% 54% 50% 50% / 52% 48% 54% 46%;
+  background: radial-gradient(circle at 38% 32%, color-mix(in srgb, var(--env-light) 70%, #fff), var(--env) 62%, var(--env-dark));
+  box-shadow: 0 6px 14px var(--shadow), inset 0 0 0 9px var(--env-light), inset 0 0 0 10.5px var(--accent-soft);
+  display: grid; place-items: center; transition: transform .7s cubic-bezier(.3, 0, .2, 1), opacity .5s ease .1s;
+}
+.seal::after { content: ''; position: absolute; inset: -6px; border-radius: inherit; box-shadow: 0 0 26px 8px color-mix(in srgb, var(--accent-hi) 60%, transparent); opacity: 0; animation: glow 2.6s ease-in-out infinite; }
+@keyframes glow { 50% { opacity: 1; } }
+.mono { font-family: var(--script), cursive; color: var(--accent); line-height: 1; white-space: nowrap; }
+.mono small { font-size: .45em; margin: 0 .02em; vertical-align: .25em; }
+.seal .mono { font-size: 50px; }
+.tap { position: absolute; left: 0; right: 0; top: calc(var(--cy) + 84px); z-index: 3; font: 400 12px var(--caps), serif; letter-spacing: .3em; text-transform: uppercase; color: var(--accent); transition: opacity .4s; animation: breathe 2.6s ease-in-out infinite; }
+@keyframes breathe { 50% { opacity: .35; } }
+#intro.open .seal { transform: scale(1.25); opacity: 0; }
+#intro.open .seal::after, #intro.open .tap { animation: none; }
+#intro.open .tap { opacity: 0; }
+
+/* envelope */
+#intro.intro-envelope { --cy: 51.5%; }
+.flap-wrap { position: absolute; inset: 0; transition: transform 1.5s cubic-bezier(.6, 0, .3, 1) .45s, opacity 1.2s ease .9s; }
+/* Edges are shaded with gradients, not a drop-shadow filter: a filter on a full-screen moving layer costs frames. */
 .flap { position: absolute; inset: 0; background: linear-gradient(160deg, var(--env-light), var(--env)); }
-.flap-wrap.top .flap { clip-path: polygon(0 0, 100% 0, 50% 53%); background: linear-gradient(180deg, var(--env-light), var(--env)); }
-.flap-wrap.bottom .flap { clip-path: polygon(0 100%, 100% 100%, 50% 47%); background: linear-gradient(0deg, var(--env-light), var(--env)); }
-.flap-wrap.left .flap { clip-path: polygon(0 0, 50% 50%, 0 100%); }
-.flap-wrap.right .flap { clip-path: polygon(100% 0, 50% 50%, 100% 100%); }
+.flap-wrap.top .flap { clip-path: polygon(0 0, 100% 0, 50% 53%); background: linear-gradient(180deg, var(--env-light), color-mix(in srgb, var(--env-light) 60%, #fff)); }
+.flap-wrap.bottom .flap { clip-path: polygon(0 100%, 100% 100%, 50% 47%); background: linear-gradient(0deg, var(--env-light), color-mix(in srgb, var(--env-light) 60%, #fff)); }
+.flap-wrap.left .flap { clip-path: polygon(0 0, 50% 50%, 0 100%); background: linear-gradient(90deg, var(--env) 20%, color-mix(in srgb, var(--env-dark) 82%, var(--text))); }
+.flap-wrap.right .flap { clip-path: polygon(100% 0, 50% 50%, 100% 100%); background: linear-gradient(270deg, var(--env) 20%, color-mix(in srgb, var(--env-dark) 82%, var(--text))); }
 .flap-wrap.top { transform-origin: 50% 0; z-index: 2; }
-.emboss { position: absolute; width: 110px; height: 220px; color: color-mix(in srgb, var(--env-light) 60%, #fff); stroke-width: 1.6; filter: drop-shadow(1px 1.5px .6px var(--shadow)); }
+.emboss { position: absolute; width: 110px; height: 220px; color: color-mix(in srgb, var(--env-light) 60%, #fff); stroke-width: 1.6; }
 .top .emboss { left: 50%; top: 6%; transform: translateX(-50%) rotate(180deg); }
 .bottom .emboss { left: 50%; bottom: 5%; transform: translateX(-50%); }
 .left .emboss { left: 5%; top: 50%; transform: translateY(-50%); }
 .right .emboss { right: 5%; top: 50%; transform: translateY(-50%); }
-.seal {
-  position: absolute; left: 50%; top: 51.5%; z-index: 3; width: 124px; height: 124px;
-  transform: translate(-50%, -50%); border-radius: 46% 54% 50% 50% / 52% 48% 54% 46%;
-  background: radial-gradient(circle at 38% 32%, color-mix(in srgb, var(--env-light) 70%, #fff), var(--env) 62%, var(--env-dark));
-  box-shadow: 0 6px 14px var(--shadow), inset 0 0 0 9px var(--env-light), inset 0 0 0 10.5px var(--accent-soft);
-  display: grid; place-items: center; transition: transform .7s ease, opacity .6s ease .15s;
-  animation: seal-pulse 2.6s ease-in-out infinite;
-}
-@keyframes seal-pulse { 50% { box-shadow: 0 6px 14px var(--shadow), 0 0 26px 6px color-mix(in srgb, var(--accent-hi) 60%, transparent), inset 0 0 0 9px var(--env-light), inset 0 0 0 10.5px var(--accent-soft); } }
-.mono { font-family: var(--script), cursive; color: var(--accent); line-height: 1; white-space: nowrap; }
-.mono small { font-size: .45em; margin: 0 .02em; vertical-align: .25em; }
-.seal .mono { font-size: 50px; }
-.tap { position: absolute; left: 0; right: 0; top: calc(51.5% + 84px); z-index: 3; font: 400 12px var(--caps), serif; letter-spacing: .3em; text-transform: uppercase; color: var(--accent); transition: opacity .4s; animation: breathe 2.6s ease-in-out infinite; }
-@keyframes breathe { 50% { opacity: .35; } }
-#intro.open { opacity: 0; visibility: hidden; pointer-events: none; }
-#intro.open .env-glow { opacity: 1; }
-#intro.open .seal { transform: translate(-50%, -50%) scale(1.25); opacity: 0; animation: none; }
-#intro.open .tap { opacity: 0; animation: none; }
 #intro.open .top { transform: rotateX(-178deg); opacity: 0; }
 #intro.open .bottom { transform: translateY(60%); opacity: 0; }
 #intro.open .left { transform: translateX(-60%); opacity: 0; }
 #intro.open .right { transform: translateX(60%); opacity: 0; }
 
+/* doors */
+#intro.intro-doors { --hold: 1.7s; }
+.leaf { position: absolute; top: 0; bottom: 0; width: 50%; background: linear-gradient(90deg, var(--env), var(--env-light) 50%, var(--env)); box-shadow: inset 0 0 0 10px var(--env-dark), inset 0 0 0 11px var(--line); transition: transform 1.8s cubic-bezier(.65, 0, .25, 1) .35s; }
+.leaf.l { left: 0; transform-origin: 0 50%; border-right: 1px solid var(--line); }
+.leaf.r { right: 0; transform-origin: 100% 50%; }
+.leaf i { position: absolute; left: 17%; right: 17%; border: 1px solid var(--line); box-shadow: inset 0 0 0 6px var(--env), inset 0 0 0 7px var(--line), inset 0 14px 30px -14px var(--shadow); }
+.leaf i:first-of-type { top: 7%; height: 52%; border-radius: 999px 999px 4px 4px / 130px 130px 4px 4px; }
+.leaf i:last-of-type { bottom: 7%; height: 27%; border-radius: 4px; }
+.leaf b { position: absolute; top: calc(46% + 78px); width: 9px; height: 58px; border-radius: 6px; background: var(--grad); box-shadow: 0 2px 4px var(--shadow); }
+.leaf.l b { right: 13px; } .leaf.r b { left: 13px; }
+#intro.open .leaf.l { transform: rotateY(-106deg); }
+#intro.open .leaf.r { transform: rotateY(106deg); }
+
+/* curtains */
+.intro-curtain { --cur-a: color-mix(in srgb, var(--accent) 72%, #fff); --cur-b: var(--accent); --cur-c: color-mix(in srgb, var(--accent) 78%, #000); }
+.drape { position: absolute; top: 0; bottom: 0; width: 52%; background: repeating-linear-gradient(90deg, var(--cur-c) 0, var(--cur-a) 12px, var(--cur-b) 24px, var(--cur-c) 38px); transition: transform 1.9s cubic-bezier(.7, 0, .2, 1) .3s; }
+.drape::after { content: ''; position: absolute; inset: 0; background: linear-gradient(transparent 60%, rgba(0, 0, 0, .28)); }
+.drape.l { left: 0; transform-origin: 0 0; } .drape.r { right: 0; transform-origin: 100% 0; }
+.valance { position: absolute; top: 0; left: -12%; width: 124%; height: 11%; z-index: 2; border-radius: 0 0 50% 50% / 0 0 100% 100%; background: repeating-linear-gradient(90deg, var(--cur-c) 0, var(--cur-b) 16px, var(--cur-a) 30px, var(--cur-c) 46px); box-shadow: 0 6px 14px rgba(0, 0, 0, .3); transition: transform 1s cubic-bezier(.6, 0, .3, 1) 1.2s; }
+.intro-curtain .tap { color: var(--on-accent); }
+#intro.open .drape.l { transform: translateX(-8%) scaleX(.14); }
+#intro.open .drape.r { transform: translateX(8%) scaleX(.14); }
+#intro.open .valance { transform: translateY(-110%); }
+
+/* heart */
+.half { position: absolute; top: 0; bottom: 0; width: 50%; overflow: hidden; background: linear-gradient(var(--env-light), var(--env)); transition: transform 1.5s cubic-bezier(.7, 0, .2, 1) .55s; }
+.half.l { left: 0; } .half.r { right: 0; }
+.half .art { position: absolute; top: 0; height: 100%; width: 200%; transform-origin: 50% 46%; animation: beat 1.7s ease-in-out infinite; }
+.half.l .art { left: 0; } .half.r .art { right: 0; }
+@keyframes beat { 0%, 100% { transform: scale(1); } 14% { transform: scale(1.045); } 28% { transform: scale(1); } 42% { transform: scale(1.03); } 56% { transform: scale(1); } }
+.heart-line { stroke: var(--on-accent); opacity: .55; } .heart-sprig { color: var(--line); stroke-width: 1.2; }
+.intro-heart .seal { background: none; box-shadow: none; }
+.intro-heart .seal::after { display: none; }
+.intro-heart .seal .mono { color: var(--on-accent); font-size: 54px; }
+.intro-heart .tap { top: calc(var(--cy) + 150px); }
+#intro.open .half .art { animation: none; }
+#intro.open .half.l { transform: translateX(-101%); }
+#intro.open .half.r { transform: translateX(101%); }
+
+/* ribbon */
+#intro.intro-ribbon { --cy: 70%; --hold: 1.6s; }
+#intro.intro-curtain { --hold: 1.7s; }
+.wrap { position: absolute; inset: 0; background: radial-gradient(var(--line) 1px, transparent 1.5px) 0 0 / 22px 22px, linear-gradient(160deg, var(--env-light), var(--env)); transition: transform 1s ease 1.1s, opacity .9s ease 1.1s; }
+.band { position: absolute; box-shadow: 0 2px 8px var(--shadow); transition: transform 1.1s cubic-bezier(.7, 0, .2, 1) .45s; }
+.band.v { top: 0; bottom: 0; left: 50%; width: 54px; margin-left: -27px; background: linear-gradient(90deg, var(--accent), var(--accent-hi) 50%, var(--accent)); }
+.band.h { left: 0; right: 0; top: 40%; height: 54px; margin-top: -27px; background: linear-gradient(180deg, var(--accent), var(--accent-hi) 50%, var(--accent)); }
+.bow { position: absolute; left: 50%; top: 40%; width: 290px; height: 190px; margin: -76px 0 0 -145px; z-index: 2; filter: drop-shadow(0 4px 6px var(--shadow)); transition: transform .7s cubic-bezier(.5, -.4, .4, 1), opacity .5s ease .2s; }
+.bow-line { stroke: color-mix(in srgb, var(--accent) 70%, #000); }
+.intro-ribbon .seal { width: 104px; height: 104px; margin: -52px 0 0 -52px; }
+.intro-ribbon .seal .mono { font-size: 40px; }
+#intro.open .band.v { transform: translateY(-101%); }
+#intro.open .band.h { transform: translateX(101%); }
+#intro.open .bow { transform: scale(1.5) rotate(-8deg); opacity: 0; }
+#intro.open .wrap { transform: scale(1.06); opacity: 0; }
+
+/* petals */
+#intro.intro-petals { --hold: 2.2s; }
+.veil { position: absolute; inset: 0; background: radial-gradient(circle at 50% 46%, var(--env-light), var(--env) 70%, var(--env-dark)); transition: opacity 1.2s ease .5s; }
+.wreath { position: absolute; left: 50%; top: 46%; width: 320px; height: 320px; margin: -160px 0 0 -160px; transition: transform 1.5s cubic-bezier(.3, 0, .2, 1) .1s, opacity 1s ease .3s; }
+.petal { position: absolute; top: -8%; left: var(--x); width: var(--s); height: calc(var(--s) * .72); border-radius: 80% 10% 80% 10%; background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 22%, #fff), color-mix(in srgb, var(--accent) 60%, var(--paper))); opacity: 0; }
+@keyframes fall { 0% { opacity: 0; transform: translate3d(0, 0, 0) rotate(0); } 12% { opacity: .95; } 100% { opacity: .85; transform: translate3d(var(--dx), 120vh, 0) rotate(var(--r)); } }
+.intro-petals .seal { background: none; box-shadow: none; }
+#intro.open .veil { opacity: 0; }
+#intro.open .wreath { transform: rotate(50deg) scale(1.6); opacity: 0; }
+#intro.open .petal { animation: fall var(--d) cubic-bezier(.35, .1, .6, 1) var(--w) both; }
+
 /* ---------- Cover ---------- */
 .hero { position: relative; height: 100svh; min-height: 620px; max-height: 900px; overflow: hidden; }
 .scene, .hero-media { position: absolute; inset: 0; width: 100%; height: 100%; }
+/* the cover settles in as the opening finishes */
+.hero .scene, .hero .hero-media { transform: scale(1.07); transition: transform 2.6s cubic-bezier(.22, 1, .36, 1) .2s; }
+.hero .hero-text { opacity: 0; transform: translate3d(0, 16px, 0); transition: opacity 1.1s ease .9s, transform 1.1s cubic-bezier(.22, 1, .36, 1) .9s; }
+.entered .hero .scene, .entered .hero .hero-media, .static .hero .scene, .static .hero .hero-media { transform: none; }
+.entered .hero .hero-text, .static .hero .hero-text { opacity: 1; transform: none; }
+.static .hero * { transition: none; }
 .hero-media { object-fit: cover; }
 .hero::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 22%; background: linear-gradient(transparent, var(--bg)); }
 .hero-text { position: absolute; left: 0; right: 0; top: 30%; z-index: 1; padding: 0 70px; }
@@ -106,7 +189,7 @@ h2.script { font-size: 40px; line-height: 1.1; margin: 0; overflow-wrap: anywher
 .hero-names { font-size: 34px; margin-top: 4px; }
 .hero-tag { margin-top: 10px; font: 400 12px/1.6 var(--caps), serif; letter-spacing: .2em; text-transform: uppercase; }
 .hero.has-media .hero-text, .hero.has-media .hero-text .script, .hero.has-media .hero-text .mono { color: #fff; text-shadow: 0 1px 12px rgba(0, 0, 0, .55), 0 0 2px rgba(0, 0, 0, .4); }
-.hero.has-media:not(.framed)::before { content: ''; position: absolute; inset: 0; background: linear-gradient(rgba(0, 0, 0, .28), transparent 45%); z-index: 1; }
+.hero.has-media.frame-none::before { content: ''; position: absolute; inset: 0; background: linear-gradient(rgba(0, 0, 0, .28), transparent 45%); z-index: 1; }
 .scroll-cue { position: absolute; left: 0; right: 0; bottom: 6%; z-index: 2; color: var(--accent); display: grid; justify-items: center; gap: 2px; animation: bob 2.2s ease-in-out infinite; }
 .scroll-cue .script { font-size: 26px; }
 @keyframes bob { 50% { transform: translateY(6px); } }
@@ -211,14 +294,15 @@ dialog .radio input { accent-color: var(--accent); width: 18px; height: 18px; ma
 #music[aria-pressed=true] .ic-pause { display: inline; }
 
 /* ---------- Scroll reveal ---------- */
-.reveal { opacity: 0; transform: translateY(26px); transition: opacity 1s ease, transform 1s ease; }
+.reveal { opacity: 0; transform: translate3d(0, 22px, 0); transition: opacity .9s cubic-bezier(.22, 1, .36, 1), transform .9s cubic-bezier(.22, 1, .36, 1); }
+.timeline li.reveal:nth-child(even) { transition-delay: .08s; }
 .reveal.in, .static .reveal { opacity: 1; transform: none; }
 .static .reveal { transition: none; }
 .empty-note { padding: 80px 30px; font-size: 18px; }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .reveal { opacity: 1; transform: none; transition: none; }
-  .seal, .tap, .scroll-cue { animation: none; }
-  #intro, #intro * { transition-duration: .01s !important; transition-delay: 0s !important; }
+  .reveal, .hero .hero-text, .hero .scene, .hero .hero-media { opacity: 1; transform: none; transition: none; }
+  .seal::after, .tap, .scroll-cue, .half .art { animation: none; }
+  #intro, #intro * { transition-duration: .01s !important; transition-delay: 0s !important; animation: none !important; }
 }

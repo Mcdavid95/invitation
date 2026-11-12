@@ -1,6 +1,6 @@
 import {
   sanitizeConfig, starterConfig, inviteTitle, newId, SAMPLE, LIMITS,
-  UPLOAD_TYPES, UPLOAD_MAX, CONTENT_TYPE_BY_EXT, UTC_OFFSETS,
+  UPLOAD_TYPES, UPLOAD_MAX, CONTENT_TYPE_BY_EXT, UTC_OFFSETS, SOUNDS,
 } from '../public/assets/schema.js';
 import { hashPassword, login, createSession, destroySession, userFromRequest, sessionCookie } from './auth.js';
 import { cleanSlug, slugFrom, cleanRsvp, csvCell } from './util.js';
@@ -81,6 +81,11 @@ async function route(req, env) {
   if (method !== 'GET' && method !== 'HEAD') throw new HttpError(405, 'Method not allowed.');
 
   if (seg[0] === 'media' && seg.length === 3) return media(req, env, seg[1], seg[2]);
+  if (seg[0] === 'sounds' && seg.length === 2) {
+    const id = seg[1].endsWith('.mp3') ? seg[1].slice(0, -4) : '';
+    if (!Object.hasOwn(SOUNDS, id)) throw new HttpError(404, 'Not found.');
+    return serveObject(req, env, `sounds/${id}.mp3`, 'audio/mpeg');
+  }
   if (seg[0] === 'i' && seg.length === 2) return publicInvite(req, env, seg[1]);
   if (path === '/demo') return renderInvite({ cfg: SAMPLE(), demo: true }, 'Sample invitation');
   if (seg[0] === 'edit' && seg.length === 2) return asset('/editor');
@@ -121,7 +126,12 @@ async function media(req, env, inviteId, file) {
   const m = /^([A-Za-z0-9]{8,24})\.([a-z0-9]{2,4})$/.exec(file);
   const type = m && CONTENT_TYPE_BY_EXT[m[2]];
   if (!type || !/^[A-Za-z0-9]{8,24}$/.test(inviteId)) throw new HttpError(404, 'Not found.');
-  const obj = await env.MEDIA.get(`${inviteId}/${file}`, { range: req.headers, onlyIf: req.headers });
+  return serveObject(req, env, `${inviteId}/${file}`, type);
+}
+
+/** Streams an R2 object with range and conditional-request support. */
+async function serveObject(req, env, key, type) {
+  const obj = await env.MEDIA.get(key, { range: req.headers, onlyIf: req.headers });
   if (!obj) throw new HttpError(404, 'Not found.');
   const headers = new Headers({
     'Content-Type': type, // from the stored extension, never from the uploader

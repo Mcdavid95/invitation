@@ -1,5 +1,25 @@
 import { h, $, api, toast } from './dom.js';
-import { GROUPS, SECTIONS, PALETTES, COLOR_KEYS, COLOR_LABELS, FONTS, UPLOAD_TYPES, UPLOAD_MAX, newSection, inviteTitle } from './schema.js';
+import { GROUPS, SECTIONS, PALETTES, COLOR_KEYS, COLOR_LABELS, FONTS, SOUNDS, soundUrl, isLibrarySound, UPLOAD_TYPES, UPLOAD_MAX, newSection, inviteTitle } from './schema.js';
+import { SCENE_ART } from './scenes.js';
+
+// Lettering previews need each heading typeface; ask Google Fonts for just the two letters shown.
+document.head.append(h('link', { rel: 'stylesheet', href: `https://fonts.googleapis.com/css2?${Object.values(FONTS).map((f) => `family=${f.q.split('&')[0]}`).join('&')}&text=Aa&display=swap` }));
+// The scene thumbnails reference a sun gradient and a flower that only exist inside the invitation page.
+document.body.insertAdjacentHTML('beforeend', '<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><radialGradient id="sun"><stop offset="0" stop-color="#fff" stop-opacity=".9"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient><symbol id="flower" viewBox="-30 -30 60 60"><circle r="22" class="sc-petal"/><circle r="6" class="sc-c"/></symbol></defs></svg>');
+
+let previewAudio = null;
+function stopPreviewAudio() {
+  previewAudio?.pause();
+  previewAudio = null;
+}
+function sceneThumb(id) {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('viewBox', '45 240 300 400');
+  svg.setAttribute('aria-hidden', 'true');
+  // Markup comes from the constants in scenes.js; ids are suffixed so thumbnails never collide with each other.
+  svg.innerHTML = `<rect x="0" y="0" width="390" height="780" class="sc-water"/>${SCENE_ART[id]().replaceAll('"sk"', '"sk-t"').replaceAll('#sk', '#sk-t').replaceAll('"lk"', '"lk-t"').replaceAll('#lk', '#lk-t')}`;
+  return svg;
+}
 
 const id = location.pathname.split('/')[2];
 const pane = $('#pane');
@@ -146,7 +166,16 @@ function field(f, obj) {
     case 'date': return wrap(h('input', { type: 'date', value: v, oninput: (e) => set(e.target.value) }));
     case 'datetime': return wrap(h('input', { type: 'datetime-local', value: v, oninput: (e) => set(e.target.value.slice(0, 16)) }));
     case 'int': return wrap(h('input', { type: 'number', value: v, min: f.min, max: f.max, oninput: (e) => e.target.value && set(Math.min(f.max, Math.max(f.min, Math.round(+e.target.value)))) }));
-    case 'select': return wrap(h('select', { onchange: (e) => set(e.target.value) }, f.options.map((o) => h('option', { value: o, text: f.labels?.[o] ?? (f.k === 'utcOffset' ? `UTC${o}` : o[0].toUpperCase() + o.slice(1)), selected: o === v }))));
+    case 'select':
+      if (f.tiles) {
+        const t = cfg.theme;
+        return h('div', { class: 'field' }, h('span', { text: f.l }),
+          h('div', { class: `tiles ${f.tiles === 'scene' ? 'scenes' : ''}`, style: `--accent:${t.accent};--bg:${t.bg};--paper:${t.paper};--text:${t.text}` },
+            f.options.map((o) => h('button', { type: 'button', class: `tile ${o === v ? 'on' : ''}`, ariaPressed: String(o === v), onclick: () => set(o, { redraw: true }) },
+              f.tiles === 'scene' ? sceneThumb(o) : null, h('span', { text: f.labels[o] })))),
+          help);
+      }
+      return wrap(h('select', { onchange: (e) => set(e.target.value) }, f.options.map((o) => h('option', { value: o, text: f.labels?.[o] ?? (f.k === 'utcOffset' ? `UTC${o}` : o[0].toUpperCase() + o.slice(1)), selected: o === v }))));
     case 'bool': return h('label', { class: 'field check' }, h('input', { type: 'checkbox', checked: v, onchange: (e) => set(e.target.checked) }), h('span', { text: f.l }));
 
     case 'colors':
@@ -166,13 +195,38 @@ function field(f, obj) {
             v ? h('button', { class: 'link danger', type: 'button', text: 'Remove', onclick: () => { trash.push(v.url); set(null, { redraw: true }); } }) : null)),
         help);
     }
-    case 'audio':
+    case 'audio': {
+      const own = v && !isLibrarySound(v);
+      const choose = (url) => {
+        if (url === v) return;
+        stopPreviewAudio();
+        if (own) trash.push(v);
+        set(url, { redraw: true });
+      };
+      const row = (url, label, selected) => {
+        const play = url ? h('button', { type: 'button', class: 'play', ariaLabel: `Listen to ${label}`, text: '▶', onclick: (e) => {
+          e.stopPropagation();
+          const was = previewAudio?.dataset.url === url;
+          stopPreviewAudio();
+          for (const b of document.querySelectorAll('.track .play')) b.textContent = '▶';
+          if (was) return;
+          previewAudio = new Audio(url);
+          previewAudio.dataset.url = url;
+          previewAudio.addEventListener('ended', () => (e.target.textContent = '▶'));
+          previewAudio.play().then(() => (e.target.textContent = '❚❚'), () => toast('That track could not be played.', true));
+        } }) : h('span', { class: 'play none' });
+        return h('div', { class: `track ${selected ? 'on' : ''}` }, play,
+          h('button', { type: 'button', class: 'pick', ariaPressed: String(selected), text: label, onclick: () => choose(url) }));
+      };
       return h('div', { class: 'field' }, h('span', { text: f.l }),
-        v ? h('audio', { src: v, controls: true, preload: 'none' }) : null,
+        h('div', { class: 'tracks' },
+          row('', 'No music', !v),
+          Object.entries(SOUNDS).map(([key, label]) => row(soundUrl(key), label, v === soundUrl(key))),
+          own ? row(v, 'Your uploaded track', true) : null),
         h('div', {},
-          picker(v ? 'Replace track' : 'Upload a track', 'audio/mpeg,audio/mp4,audio/x-m4a,audio/ogg,audio/wav', ['audio'], false, ([m]) => { if (v) trash.push(v); set(m.url, { redraw: true }); }),
-          v ? h('button', { class: 'link danger', type: 'button', text: 'Remove', onclick: () => { trash.push(v); set('', { redraw: true }); } }) : null),
+          picker(own ? 'Replace your track' : 'Upload your own', 'audio/mpeg,audio/mp4,audio/x-m4a,audio/ogg,audio/wav', ['audio'], false, ([m]) => { stopPreviewAudio(); if (own) trash.push(v); set(m.url, { redraw: true }); })),
         help);
+    }
     case 'images':
       return h('div', { class: 'field' }, h('span', { text: f.l }),
         h('div', { class: 'thumbs' }, v.map((url, i) => h('span', {}, h('img', { src: url, alt: '' }),

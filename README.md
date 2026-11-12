@@ -7,13 +7,17 @@ Live: https://invitation.mcdavidemereuwa95.workers.dev
 
 ## What a host can customise
 
-- **Colours**: eight palettes, or any four colours (background, cards, accent, text).
-- **Lettering**: four font pairings.
-- **Cover**: an illustrated scene, or their own photo or video, with or without the arch frame.
+- **Starting designs**: six (Timeless, Garden, Midnight, Rosé, Emerald, Coastal).
+- **Colours**: sixteen palettes, or any four colours (background, cards, accent, text).
+- **Lettering**: twelve font pairings.
+- **Opening moment**: sealed envelope, grand doors, velvet curtains, heart locket, ribbon and
+  bow, or rose petals.
+- **Cover**: one of twelve illustrated scenes or their own photo or video, in an ornate arch,
+  round arch, oval, or no frame.
 - **Sections**: date (scratch to reveal), couple, welcome message, verse or quote, timeline,
   countdown, location with map, dress code, gifts, photo gallery, RSVP, and any number of
   custom sections. Each can be reordered, hidden, retitled, and given its own photo or video.
-- **Envelope intro** and **music** (an uploaded track), both optional.
+- **Music**: one of six built-in tracks, or an uploaded one. Optional.
 - **Link**: `/i/<name>`, editable.
 
 ## How it is built
@@ -35,6 +39,22 @@ R2 bucket `invitation-media` and are served from `/media/…` with range support
 
 Static files are bundled into the Worker by `scripts/build-assets.js`, which wrangler runs before
 `dev` and `deploy`. `src/assets.gen.js` is its output and is not committed.
+
+### Built-in music
+
+`scripts/make-sounds.py` synthesises the six tracks in `sounds/` from note lists (numpy and
+ffmpeg), so none of them is a recording of anyone's performance. "Canon in D" follows
+Pachelbel's public-domain piece; the other five are original. They are served from
+`/sounds/<id>.mp3` out of the R2 bucket under `sounds/`. After regenerating, upload them:
+
+```bash
+npm run sounds:upload
+```
+
+### Animation
+
+Openings and scroll reveals animate only `transform` and `opacity`, the opening layer is removed
+from the page once it has finished, and everything is disabled under `prefers-reduced-motion`.
 
 ### Behaviour worth knowing
 
