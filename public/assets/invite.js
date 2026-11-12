@@ -45,6 +45,13 @@ const mono = (cfg, cls) => {
   if (!a) return null;
   return h('p', { class: `mono ${cls}` }, a, b ? h('small', { text: '&' }) : null, b);
 };
+/** A ring of leaf sprigs that turns slowly behind a monogram. */
+const wreath = () => use(Array.from({ length: 14 }, (_, i) =>
+  ['sprig', { width: 22, height: 44, transform: `rotate(${(i * 360) / 14} 100 100) translate(100 12) rotate(78) translate(-11 -22)` }]), 'wreath-ring', '0 0 200 200');
+const monoWithWreath = (cfg, cls) => {
+  const m = mono(cfg, cls);
+  return m && cfg.motion.wreath ? h('div', { class: `mono-wrap ${cls}-wrap` }, wreath(), m) : m;
+};
 
 function mediaEl(m, cls = 'media') {
   if (!m) return null;
@@ -357,7 +364,7 @@ function hero(cfg) {
   return h('section', { class: `hero ${c.media ? 'has-media' : ''} frame-${c.frame}` },
     mediaEl(c.media, 'hero-media'), scene,
     h('div', { class: 'hero-text' },
-      c.showMonogram ? mono(cfg, 'hero-mono') : null,
+      c.showMonogram ? monoWithWreath(cfg, 'hero-mono') : null,
       c.showNames && (cfg.basics.first || cfg.basics.second) ? h('p', { class: 'hero-names script', text: title }) : null,
       para(c.tagline, 'hero-tag')),
     c.cue ? h('div', { class: 'scroll-cue' }, h('span', { class: 'script', text: c.cue }), chevron()) : null);
@@ -391,7 +398,7 @@ const INTRO_PARTS = {
     });
     // Fixed pseudo-random spread so the fall looks the same on every open.
     const petals = Array.from({ length: 26 }, (_, i) => {
-      const r = (n) => ((i * 9301 + n * 49297) % 233280) / 233280;
+      const r = (n) => rnd(i + 40, n);
       return h('i', { class: 'petal', style: `--x:${(r(1) * 96).toFixed(1)}%;--s:${(14 + r(2) * 16).toFixed(0)}px;--dx:${((r(3) - 0.5) * 160).toFixed(0)}px;--r:${(180 + r(4) * 540).toFixed(0)}deg;--d:${(1.7 + r(5) * 1.2).toFixed(2)}s;--w:${(r(6) * 0.9).toFixed(2)}s` });
     });
     return [h('div', { class: 'veil' }), use(ring, 'wreath', '0 0 320 320'), petals];
@@ -450,6 +457,74 @@ function musicButton(cfg) {
   return btn;
 }
 
+/* ---------- Continuous motion ---------- */
+// Fixed pseudo-random numbers so the layout is the same on every render.
+const rnd = (i, n) => {
+  const v = Math.sin(i * 127.1 + n * 311.7) * 43758.5453;
+  return v - Math.floor(v);
+};
+
+/** Petals, sparkles or hearts drifting over the card for as long as it is open. */
+function ambient(cfg) {
+  const kind = cfg.motion.ambient;
+  if (kind === 'none') return null;
+  const count = kind === 'sparkles' ? 16 : 12;
+  return h('div', { class: `ambient amb-${kind}`, ariaHidden: 'true' }, Array.from({ length: count }, (_, i) =>
+    h('i', { style: `--x:${(rnd(i, 1) * 96).toFixed(1)}%;--y:${(6 + rnd(i, 2) * 86).toFixed(1)}%;--s:${(0.6 + rnd(i, 3) * 0.8).toFixed(2)};--dx:${((rnd(i, 4) - 0.5) * 140).toFixed(0)}px;--r:${(120 + rnd(i, 5) * 480).toFixed(0)}deg;--d:${(kind === 'sparkles' ? 2.4 + rnd(i, 6) * 3 : 9 + rnd(i, 6) * 9).toFixed(1)}s;--w:${(-rnd(i, 7) * 18).toFixed(1)}s` })));
+}
+
+let scrollQueued = false;
+let scrollWork = () => {};
+function onScroll() {
+  if (scrollQueued) return;
+  scrollQueued = true;
+  requestAnimationFrame(() => {
+    scrollQueued = false;
+    scrollWork();
+  });
+}
+
+function motion(main, cfg) {
+  // Each direct child of a section fades up in turn when the section arrives.
+  for (const block of main.querySelectorAll('.block')) {
+    const box = block.classList.contains('gifts') ? block.querySelector('.card') : block;
+    let i = 0;
+    for (const child of box.children) {
+      if (child.matches('.side-flower, .card-flower, dialog, .timeline')) continue;
+      child.classList.add('st');
+      child.style.setProperty('--i', i++);
+    }
+  }
+  // Illustration loops stop while the cover is off screen.
+  const heroEl = main.querySelector('.hero');
+  new IntersectionObserver(([e]) => heroEl.classList.toggle('away', !e.isIntersecting)).observe(heroEl);
+
+  if (!cfg.motion.scroll || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  main.classList.add('scrolly');
+  const lines = [...main.querySelectorAll('.timeline')].map((ol) => ({ ol, items: [...ol.children] }));
+  const drift = [...main.querySelectorAll('.side-flower, .card-flower')];
+  scrollWork = () => {
+    const vh = innerHeight;
+    const y = scrollY;
+    // Reads first, then writes, so the browser lays out only once per frame.
+    const lineRects = lines.map(({ ol, items }) => [ol.getBoundingClientRect(), items.map((li) => li.getBoundingClientRect())]);
+    const driftRects = drift.map((el) => el.parentElement.getBoundingClientRect());
+    if (y < heroEl.offsetHeight) heroEl.style.setProperty('--sy', y.toFixed(0));
+    lines.forEach(({ ol, items }, k) => {
+      const [r, rs] = lineRects[k];
+      ol.style.setProperty('--tl', Math.min(1, Math.max(0, (vh * 0.62 - r.top) / r.height)).toFixed(3));
+      items.forEach((li, j) => li.classList.toggle('passed', rs[j].top + rs[j].height / 2 < vh * 0.62));
+    });
+    drift.forEach((el, k) => {
+      const r = driftRects[k];
+      if (r.bottom > -100 && r.top < vh + 100) el.style.setProperty('--par', ((r.top + r.height / 2 - vh / 2) * -0.08).toFixed(1));
+    });
+  };
+  addEventListener('scroll', onScroll, { passive: true });
+  addEventListener('resize', onScroll, { passive: true });
+  scrollWork();
+}
+
 /* ---------- Render ---------- */
 export function render(cfg, opts = {}) {
   clearInterval(ticker);
@@ -458,14 +533,16 @@ export function render(cfg, opts = {}) {
   applyTheme(cfg.theme);
   if (!mode.preview) document.title = document.title === 'Invitation' ? inviteTitle(cfg) : document.title;
 
-  const main = h('main', { class: `invite ${opts.static ? 'static' : ''}` }, hero(cfg));
+  removeEventListener('scroll', onScroll);
+  removeEventListener('resize', onScroll);
+  const main = h('main', { class: `invite ${opts.static ? 'static' : ''} ${cfg.motion.living ? 'living' : ''}` }, hero(cfg));
   for (const s of cfg.sections) {
     if (!s.enabled || !RENDER[s.type]) continue;
     const cls = `${s.type}${s.florals ? ' florals' : ''}`;
     main.append(h('section', { class: `block reveal ${cls}`, 'data-id': s.id }, RENDER[s.type](s, cfg)));
   }
   main.append(h('footer', { class: 'block reveal' },
-    cfg.basics.closing ? h('p', { class: 'script closing', text: cfg.basics.closing }) : null, mono(cfg, 'foot-mono'),
+    cfg.basics.closing ? h('p', { class: 'script closing', text: cfg.basics.closing }) : null, monoWithWreath(cfg, 'foot-mono'),
     h('p', { class: 'made' }, 'Made with ', h('a', { href: '/', text: 'Sealed' }))));
 
   const music = musicButton(cfg);
@@ -474,7 +551,8 @@ export function render(cfg, opts = {}) {
   const showIntro = cfg.intro.enabled && opts.intro !== false;
   document.body.classList.toggle('locked', showIntro);
   const enter = () => main.classList.add('entered');
-  root.replaceChildren(...[showIntro ? intro(cfg, () => (enter(), startMusic())) : null, main, music].filter(Boolean));
+  root.replaceChildren(...[showIntro ? intro(cfg, () => (enter(), startMusic())) : null, main, ambient(cfg), music].filter(Boolean));
+  motion(main, cfg);
   if (!showIntro) requestAnimationFrame(() => requestAnimationFrame(enter));
   if (!showIntro && music && !mode.preview) addEventListener('pointerdown', startMusic, { once: true });
 

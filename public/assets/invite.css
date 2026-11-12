@@ -289,20 +289,98 @@ dialog .radio input { accent-color: var(--accent); width: 18px; height: 18px; ma
 [hidden] { display: none !important; }
 
 /* ---------- Music ---------- */
-#music { position: fixed; z-index: 40; right: max(18px, calc(50vw - 197px)); bottom: 18px; width: 58px; height: 58px; border-radius: 50%; border: 0; background: var(--accent-soft); color: var(--on-accent); display: grid; place-items: center; cursor: pointer; box-shadow: 0 3px 10px var(--shadow); }
+#music { position: fixed; z-index: 40; right: 18px; bottom: 18px; width: 58px; height: 58px; border-radius: 50%; border: 0; background: var(--accent-soft); color: var(--on-accent); display: grid; place-items: center; cursor: pointer; box-shadow: 0 3px 10px var(--shadow); }
 #music .ic-pause, #music[aria-pressed=true] .ic-play { display: none; }
 #music[aria-pressed=true] .ic-pause { display: inline; }
+/* On wide screens the button sits beside the card, on the page background. */
+@media (min-width: 600px) { #music { right: auto; left: calc(50vw + 215px + 22px); bottom: 28px; } }
 
 /* ---------- Scroll reveal ---------- */
-.reveal { opacity: 0; transform: translate3d(0, 22px, 0); transition: opacity .9s cubic-bezier(.22, 1, .36, 1), transform .9s cubic-bezier(.22, 1, .36, 1); }
+.reveal { opacity: 0; transition: opacity .9s cubic-bezier(.22, 1, .36, 1); }
+.timeline li.reveal { transform: translate3d(0, 22px, 0); transition: opacity .9s cubic-bezier(.22, 1, .36, 1), transform .9s cubic-bezier(.22, 1, .36, 1); }
+/* children of a section rise one after another */
+.reveal .st { opacity: 0; transform: translate3d(0, 18px, 0); transition: opacity .8s cubic-bezier(.22, 1, .36, 1), transform .8s cubic-bezier(.22, 1, .36, 1); transition-delay: calc(var(--i, 0) * 80ms); }
+.reveal.in .st, .static .st { opacity: 1; transform: none; }
+.static .st { transition: none; }
+.reveal .st.divider { transform: scaleX(.2); }
+.reveal.in .st.divider { transform: none; }
 .timeline li.reveal:nth-child(even) { transition-delay: .08s; }
-.reveal.in, .static .reveal { opacity: 1; transform: none; }
+.reveal.in, .static .reveal, .timeline li.reveal.in { opacity: 1; transform: none; }
 .static .reveal { transition: none; }
 .empty-note { padding: 80px 30px; font-size: 18px; }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .reveal, .hero .hero-text, .hero .scene, .hero .hero-media { opacity: 1; transform: none; transition: none; }
+  .reveal, .reveal .st, .timeline li.reveal, .hero .hero-text, .hero .scene, .hero .hero-media { opacity: 1; transform: none; transition: none; }
+  .ambient { display: none; }
+  .living *, .wreath-ring, .btn::after { animation: none !important; }
   .seal::after, .tap, .scroll-cue, .half .art { animation: none; }
   #intro, #intro * { transition-duration: .01s !important; transition-delay: 0s !important; animation: none !important; }
 }
+
+/* ---------- Continuous motion ----------
+   HTML-level pieces animate transform and opacity only. Illustration loops repaint
+   just the cover, and pause while it is off screen (.away). */
+.mono-wrap { position: relative; display: grid; place-items: center; }
+.hero-mono-wrap { height: 176px; margin-top: -40px; }
+.foot-mono-wrap { height: 130px; margin-top: 10px; }
+.foot-mono-wrap .foot-mono { margin: 0; }
+.wreath-ring { position: absolute; left: 50%; top: 50%; color: var(--accent-soft); opacity: .55; animation: turn 90s linear infinite; }
+.hero-mono-wrap .wreath-ring { width: 176px; height: 176px; margin: -88px 0 0 -88px; }
+.foot-mono-wrap .wreath-ring { width: 130px; height: 130px; margin: -65px 0 0 -65px; }
+.hero.has-media .wreath-ring { color: #fff; opacity: .7; }
+@keyframes turn { to { transform: rotate(360deg); } }
+
+.ambient { position: fixed; top: 0; bottom: 0; left: 50%; width: min(430px, 100%); margin-left: max(-215px, -50%); z-index: 5; overflow: hidden; pointer-events: none; contain: strict; opacity: 0; transition: opacity 1.5s ease 1s; }
+.entered ~ .ambient, .static ~ .ambient { opacity: 1; }
+.ambient i { position: absolute; left: var(--x); will-change: transform, opacity; }
+.amb-petals i { top: -6%; width: 16px; height: 12px; border-radius: 80% 10% 80% 10%; background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 20%, #fff), color-mix(in srgb, var(--accent) 55%, var(--paper))); animation: drift var(--d) linear var(--w) infinite; }
+.amb-hearts i { bottom: -6%; width: 20px; height: 18px; background: color-mix(in srgb, var(--accent) 70%, var(--paper)); clip-path: path('M10 18C2 12 0 7 0 5a5 5 0 0 1 10-2 5 5 0 0 1 10 2c0 2-2 7-10 13z'); animation: rise var(--d) linear var(--w) infinite; }
+.amb-sparkles i { top: var(--y); width: 14px; height: 14px; background: var(--accent-hi); clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%); animation: twinkle var(--d) ease-in-out var(--w) infinite; }
+@keyframes drift { 0% { opacity: 0; transform: translate3d(0, 0, 0) rotate(0) scale(var(--s)); } 8%, 85% { opacity: .75; } 100% { opacity: 0; transform: translate3d(var(--dx), 112vh, 0) rotate(var(--r)) scale(var(--s)); } }
+@keyframes rise { 0% { opacity: 0; transform: translate3d(0, 0, 0) scale(var(--s)); } 10%, 70% { opacity: .5; } 100% { opacity: 0; transform: translate3d(var(--dx), -112vh, 0) scale(var(--s)); } }
+@keyframes twinkle { 0%, 100% { opacity: 0; transform: scale(.2) rotate(0); } 50% { opacity: .85; transform: scale(var(--s)) rotate(45deg); } }
+
+/* living illustrations */
+.living .l-flowers use, .living .lan, .living .sc-cloud, .living .sc-sun, .living .sc-boat, .living .sc-wave { transform-box: fill-box; transform-origin: 50% 50%; }
+.living .l-flowers use { animation: sway 7s ease-in-out infinite alternate; }
+.living .l-flowers use:nth-child(2n) { animation-duration: 9s; animation-direction: alternate-reverse; }
+.living .l-flowers use:nth-child(3n) { animation-duration: 11s; }
+.living .lan { transform-origin: 50% 0; animation: swing 5.5s ease-in-out infinite alternate; }
+.living .lan + .lan { animation-delay: -2.2s; }
+.living .sc-cloud { animation: float 16s ease-in-out infinite alternate; }
+.living g:nth-of-type(2n) > .sc-cloud { animation-duration: 22s; animation-direction: alternate-reverse; }
+.living .sc-sun { animation: glowpulse 6s ease-in-out infinite alternate; }
+.living .sc-star.tw0 { animation: star 3.2s ease-in-out infinite alternate; }
+.living .sc-star.tw1 { animation: star 4.6s ease-in-out -1.5s infinite alternate; }
+.living .sc-star.tw2 { animation: star 2.6s ease-in-out -.8s infinite alternate; }
+.living .sc-wave { animation: float 5s ease-in-out infinite alternate; }
+.living .sc-wave:nth-of-type(2n) { animation-direction: alternate-reverse; animation-duration: 6.5s; }
+.living .sc-boat { animation: bob 4s ease-in-out infinite alternate; }
+.living .sc-petal { animation: petalfall 9s linear infinite; }
+.living .sc-petal:nth-of-type(2n) { animation-duration: 12s; animation-delay: -5s; }
+.living .sc-petal:nth-of-type(3n) { animation-duration: 15s; animation-delay: -9s; }
+.living .side-flower, .living .card-flower { animation: swaybig 8s ease-in-out infinite alternate; transform-origin: 50% 100%; }
+.living .side-flower.r { animation-delay: -3s; }
+.living .btn { position: relative; }
+.living .block .btn::after { content: ''; position: absolute; inset: 0; border-radius: inherit; box-shadow: 0 0 0 6px color-mix(in srgb, var(--accent) 35%, transparent); opacity: 0; animation: glow 2.8s ease-in-out infinite; pointer-events: none; }
+.hero.away * { animation-play-state: paused; }
+@keyframes sway { from { transform: rotate(-4deg); } to { transform: rotate(4deg); } }
+@keyframes swaybig { from { rotate: -3deg; } to { rotate: 3deg; } }
+@keyframes swing { from { transform: rotate(-3.5deg); } to { transform: rotate(3.5deg); } }
+@keyframes float { from { transform: translateX(-7px); } to { transform: translateX(7px); } }
+@keyframes glowpulse { from { opacity: .75; transform: scale(.96); } to { opacity: 1; transform: scale(1.06); } }
+@keyframes star { from { opacity: .15; } to { opacity: 1; } }
+@keyframes bob { from { transform: translateY(-1.5px) rotate(-2deg); } to { transform: translateY(1.5px) rotate(2deg); } }
+@keyframes petalfall { 0% { transform: translate(0, -40px); opacity: 0; } 15% { opacity: .8; } 100% { transform: translate(18px, 150px); opacity: 0; } }
+
+/* scroll-linked: `translate` is separate from `transform`, so it never fights the entrance transitions */
+.scrolly .hero .scene, .scrolly .hero .hero-media { translate: 0 calc(var(--sy, 0) * .22px); }
+.scrolly .hero .hero-text { translate: 0 calc(var(--sy, 0) * .1px); }
+.scrolly .hero .scroll-cue { opacity: calc(1 - var(--sy, 0) / 160); }
+.scrolly .side-flower, .scrolly .card-flower { translate: 0 calc(var(--par, 0) * 1px); }
+.scrolly .timeline::after { content: ''; position: absolute; left: 50%; top: 0; bottom: 0; width: 3px; margin-left: -1.5px; background: var(--accent); transform-origin: 50% 0; transform: scaleY(var(--tl, 0)); }
+.scrolly .timeline li::before { transition: background .4s ease, transform .4s cubic-bezier(.3, 1.6, .5, 1); z-index: 1; }
+.scrolly .timeline li.passed::before { background: var(--accent); transform: rotate(45deg) scale(1.35); }
+.scrolly .timeline li .t-icon { transition: transform .6s cubic-bezier(.3, 1.4, .5, 1); }
+.scrolly .timeline li:not(.passed) .t-icon { transform: scale(.86); }

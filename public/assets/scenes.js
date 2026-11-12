@@ -3,7 +3,7 @@
 // the theme through the sc-* classes, so every scene works with every palette.
 
 const rand = (seed) => () => ((seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296);
-const sun = (x, y, r = 120) => `<circle cx="${x}" cy="${y}" r="${r}" fill="url(#sun)"/>`;
+const sun = (x, y, r = 120) => `<circle class="sc-sun" cx="${x}" cy="${y}" r="${r}" fill="url(#sun)"/>`;
 
 /** A wavy ridge filling down to the bottom of the picture. */
 function ridge(cls, y, amp, seed, step = 30) {
@@ -33,14 +33,15 @@ const pine = (cls, x, y, h) => {
   return s;
 };
 const cypress = (cls, x, y, h) => `<path class="${cls}" d="M${x} ${y - h} C${x + h * 0.16} ${y - h * 0.6} ${x + h * 0.13} ${y - h * 0.1} ${x} ${y} C${x - h * 0.13} ${y - h * 0.1} ${x - h * 0.16} ${y - h * 0.6} ${x} ${y - h}z"/>`;
-const cloud = (x, y, s) => `<g class="sc-cloud" transform="translate(${x} ${y}) scale(${s})"><ellipse rx="46" ry="13"/><ellipse cx="-22" cy="-9" rx="22" ry="13"/><ellipse cx="12" cy="-13" rx="27" ry="17"/></g>`;
+// The outer group places the cloud; the inner one is what drifts, so the animation cannot displace it.
+const cloud = (x, y, s) => `<g transform="translate(${x} ${y}) scale(${s})"><g class="sc-cloud"><ellipse rx="46" ry="13"/><ellipse cx="-22" cy="-9" rx="22" ry="13"/><ellipse cx="12" cy="-13" rx="27" ry="17"/></g></g>`;
 const waves = (y0, y1, seed) => {
   const r = rand(seed);
   let s = '';
   for (let y = y0; y < y1; y += 16) {
     const x = 20 + r() * 240;
     const w = 40 + r() * 70;
-    s += `<path class="sc-line" d="M${x.toFixed(0)} ${y} q${w / 4} -4 ${w / 2} 0 t${w / 2} 0"/>`;
+    s += `<path class="sc-line sc-wave" d="M${x.toFixed(0)} ${y} q${w / 4} -4 ${w / 2} 0 t${w / 2} 0"/>`;
   }
   return s;
 };
@@ -73,7 +74,7 @@ export const SCENE_ART = {
   night: () => {
     const r = rand(42);
     let s = '';
-    for (let i = 0; i < 70; i++) s += `<circle class="sc-star" cx="${(r() * 390).toFixed(0)}" cy="${(110 + r() * 430).toFixed(0)}" r="${(0.5 + r() * 1.3).toFixed(1)}" opacity="${(0.35 + r() * 0.65).toFixed(2)}"/>`;
+    for (let i = 0; i < 70; i++) s += `<circle class="sc-star tw${i % 3}" cx="${(r() * 390).toFixed(0)}" cy="${(110 + r() * 430).toFixed(0)}" r="${(0.5 + r() * 1.3).toFixed(1)}" opacity="${(0.35 + r() * 0.65).toFixed(2)}"/>`;
     for (const [x, y, k] of [[110, 400, 7], [300, 210, 5], [150, 470, 6], [85, 520, 4]]) s += `<path class="sc-star" d="M${x} ${y - k} q1 ${k - 1} ${k} ${k} q-${k - 1} 1 -${k} ${k} q-1 -${k - 1} -${k} -${k} q${k - 1} -1 ${k} -${k}z"/>`;
     return `${sun(262, 452, 110)}<path class="sc-p" d="M278 414a44 44 0 1 0 30 76a36 36 0 0 1-30-76z"/>${s}${ridge('sc-b', 560, 26, 6, 70)}${ridge('sc-c', 610, 18, 3, 50)}${ridge('sc-d', 660, 10, 5, 40)}`;
   },
@@ -129,7 +130,7 @@ export const SCENE_ART = {
     <g id="lk">${peaks('sc-a', 500, 150, 19, 4)}${peaks('sc-b', 520, 90, 27, 6)}</g>
     <rect class="sc-water" x="-10" y="528" width="410" height="262"/>
     <use href="#lk" transform="matrix(1 0 0 -.55 0 818)" opacity=".3"/>${waves(545, 640, 12)}
-    <g class="sc-d"><path d="M170 606h52l-8 10h-36z"/><path d="M196 606v-34l18 30z"/></g>`,
+    <g class="sc-d sc-boat"><path d="M170 606h52l-8 10h-36z"/><path d="M196 606v-34l18 30z"/></g>`,
 
   blossom: () => {
     const r = rand(5);
@@ -149,7 +150,7 @@ const ARCH_OUTER = 'M40 780V326c0-24 12-34 20-46-4-28 12-44 30-56 0-26 18-40 38-
 export const FRAME_ART = {
   arch: () => `<path fill="url(#stone)" fill-rule="evenodd" d="M0 0h390v780H0z${ARCH}z"/>
     <g fill="none" stroke="url(#gold)"><path stroke-width="2" d="${ARCH}"/><path stroke-width=".8" opacity=".7" d="${ARCH_OUTER}"/></g>
-    <use href="#lantern" x="6" y="0" width="34" height="170"/><use href="#lantern" x="350" y="0" width="34" height="170"/>`,
+    <use class="lan" href="#lantern" x="6" y="0" width="34" height="170"/><use class="lan" href="#lantern" x="350" y="0" width="34" height="170"/>`,
   round: () => `<path fill="url(#stone)" fill-rule="evenodd" d="M0 0h390v780H0zM48 780V270a147 147 0 0 1 294 0v510z"/>
     <g fill="none" stroke="url(#gold)"><path stroke-width="2" d="M48 780V270a147 147 0 0 1 294 0v510"/><path stroke-width=".8" opacity=".7" d="M36 780V270a159 159 0 0 1 318 0v510"/></g>`,
   oval: () => `<path fill="url(#stone)" fill-rule="evenodd" d="M0 0h390v780H0zM195 86a150 262 0 0 1 0 524a150 262 0 0 1 0-524z"/>

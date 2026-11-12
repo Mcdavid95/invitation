@@ -132,6 +132,15 @@ export const GROUPS = {
       f('cue', 'Scroll prompt'),
     ],
   },
+  motion: {
+    label: 'Movement',
+    fields: [
+      f('ambient', 'Floating in the air', 'select', { options: ['petals', 'sparkles', 'hearts', 'none'], labels: { petals: 'Petals', sparkles: 'Sparkles', hearts: 'Hearts', none: 'Nothing' }, tiles: true }),
+      f('living', 'Illustrations move gently (swaying flowers, drifting clouds, twinkling stars)', 'bool'),
+      f('wreath', 'Turning wreath around the monogram', 'bool'),
+      f('scroll', 'Effects while scrolling (depth, timeline that fills in)', 'bool'),
+    ],
+  },
   music: {
     label: 'Music',
     fields: [
@@ -306,6 +315,7 @@ const GROUP_DEFAULTS = {
   intro: { enabled: true, style: 'envelope', label: 'Tap to open' },
   hero: { media: null, frame: 'arch', scene: 'sky', showMonogram: true, showNames: true, tagline: '', cue: 'Scroll down' },
   music: { url: '', autoplay: true },
+  motion: { ambient: 'petals', living: true, wreath: true, scroll: true },
 };
 
 /** Returns a config containing only known keys with valid values. Never throws. */
@@ -369,6 +379,7 @@ const STARTERS = {
     label: 'Midnight', note: 'Navy and gold, black-tie evening',
     theme: { palette: 'midnight', fonts: 'modern' },
     intro: { style: 'curtain' },
+    motion: { ambient: 'sparkles' },
     hero: { scene: 'night', frame: 'oval' },
     sections: { dress: { style: 'Black Tie', outro: '', shades: ['#141b2d', '#3a2f4a', '#5a2a35', '#2f4a45', '#d4b06a'], shadesLabel: 'Colours of the evening' }, message: { florals: false }, gifts: { florals: false } },
   },
@@ -376,6 +387,7 @@ const STARTERS = {
     label: 'Rosé', note: 'Rose gold, soft and romantic',
     theme: { palette: 'rosegold', fonts: 'calligraphy' },
     intro: { style: 'heart' },
+    motion: { ambient: 'hearts' },
     hero: { scene: 'blossom', frame: 'oval' },
     sections: { dress: { style: 'Cocktail Attire', outro: 'in blush and neutral tones.', shades: ['#f5e2dc', '#e9c4b8', '#d9a79a', '#c9b8a8', '#f3ede4'] } },
   },
@@ -383,6 +395,7 @@ const STARTERS = {
     label: 'Emerald', note: 'Deep green and gold, grand entrance',
     theme: { palette: 'emerald', fonts: 'royal' },
     intro: { style: 'doors' },
+    motion: { ambient: 'sparkles' },
     hero: { scene: 'chapel', frame: 'arch' },
     sections: { dress: { style: 'Formal Attire', outro: 'in jewel tones.', shades: ['#0f5a45', '#7d2e3a', '#2b3f73', '#5a3a6b', '#d8b76a'] }, message: { florals: false }, gifts: { florals: false } },
   },
@@ -406,6 +419,7 @@ export function starterConfig(starter = 'timeless', basics = {}) {
     intro: { ...GROUP_DEFAULTS.intro, ...s.intro },
     hero: { ...GROUP_DEFAULTS.hero, ...s.hero },
     music: GROUP_DEFAULTS.music,
+    motion: { ...GROUP_DEFAULTS.motion, ...s.motion },
     theme: s.theme,
     sections: ORDER.map((type) => ({ ...newSection(type), ...(s.sections[type] ?? {}) })),
   });

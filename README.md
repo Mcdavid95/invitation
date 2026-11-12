@@ -18,6 +18,8 @@ Live: https://invitation.mcdavidemereuwa95.workers.dev
   countdown, location with map, dress code, gifts, photo gallery, RSVP, and any number of
   custom sections. Each can be reordered, hidden, retitled, and given its own photo or video.
 - **Music**: one of six built-in tracks, or an uploaded one. Optional.
+- **Movement**: floating petals, sparkles or hearts; illustrations that move gently; a turning
+  wreath around the monogram; effects tied to scrolling. Each can be switched off.
 - **Link**: `/i/<name>`, editable.
 
 ## How it is built
@@ -53,8 +55,11 @@ npm run sounds:upload
 
 ### Animation
 
-Openings and scroll reveals animate only `transform` and `opacity`, the opening layer is removed
-from the page once it has finished, and everything is disabled under `prefers-reduced-motion`.
+Openings, scroll reveals, the floating layer and the wreath animate only `transform` and
+`opacity`. Illustration loops repaint the cover only, and pause while it is off screen. Scroll
+effects are driven by one passive, frame-throttled listener that reads layout before it writes.
+The opening layer is removed once it has finished, and all of it is disabled under
+`prefers-reduced-motion`. On screens 600px and wider the music button sits beside the card.
 
 ### Behaviour worth knowing
 

@@ -353,7 +353,7 @@ function draw() {
     h('h2', { class: 'group', text: 'Design' }),
     panel('basics', GROUPS.basics.label, GROUPS.basics.fields.map((f) => field(f, cfg.basics))),
     themePanel(),
-    ...['intro', 'hero', 'music'].map((g) => panel(g, GROUPS[g].label, GROUPS[g].fields.map((f) => field(f, cfg[g])))),
+    ...['intro', 'hero', 'motion', 'music'].map((g) => panel(g, GROUPS[g].label, GROUPS[g].fields.map((f) => field(f, cfg[g])))),
     h('h2', { class: 'group', text: 'Sections' }),
     h('p', { class: 'muted small', text: 'Open a section to edit it. Use the arrows to reorder and the switch to hide.' }),
     ...cfg.sections.map(sectionPanel),

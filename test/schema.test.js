@@ -98,3 +98,9 @@ test('music accepts built-in tracks and uploads, nothing else', () => {
   assert.equal(url('/media/abcdefgh1234/abcdefgh1234.mp3'), '/media/abcdefgh1234/abcdefgh1234.mp3');
   for (const bad of ['/sounds/unknown.mp3', '/sounds/../x.mp3', '/sounds/canon.mp3?x', 'https://example.com/a.mp3', '/sounds/constructor.mp3']) assert.equal(url(bad), '');
 });
+
+test('movement settings default on for older invitations and can each be switched off', () => {
+  assert.deepEqual(sanitizeConfig({}).motion, { ambient: 'petals', living: true, wreath: true, scroll: true });
+  assert.deepEqual(sanitizeConfig({ motion: { ambient: 'none', living: false, wreath: false, scroll: false } }).motion, { ambient: 'none', living: false, wreath: false, scroll: false });
+  assert.equal(sanitizeConfig({ motion: { ambient: 'confetti' } }).motion.ambient, 'petals');
+});
