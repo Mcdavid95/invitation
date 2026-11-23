@@ -1,24 +1,39 @@
 # Sealed — digital wedding invitations
 
-A product for building and sharing wedding invitations. People sign up, start from a design,
+A product for building and sharing invitations for weddings, birthdays, anniversaries and any other occasion. People sign up, start from a design,
 customise it in an editor with a live preview, publish it to a link, and collect RSVPs.
 
 Live: https://invitation.mcdavidemereuwa95.workers.dev
 
+## Occasions
+
+Each invitation has an occasion, chosen when it is created and changeable later:
+
+| Occasion | Names | Title reads | Designs |
+| --- | --- | --- | --- |
+| Wedding | two | Ayaan & Zara | Timeless, Garden, Midnight, Rosé, Emerald, Coastal |
+| Birthday | one, plus age | Ada’s 30th Birthday | Balloon party, Golden milestone, Sunshine |
+| Anniversary | two, plus years | Grace & Daniel — 25th Anniversary | Silver jubilee, Ruby and roses, Golden years |
+| Something else | optional, plus an event name | Baby Shower | Celebration, Blank canvas |
+
+Birthdays, anniversaries and custom events open with a **Guest of honour** section (names,
+an age or years badge, a line underneath) instead of the wedding's couple-and-parents section.
+Samples of each are public at `/demo`, `/demo/birthday`, `/demo/anniversary` and `/demo/custom`.
+
 ## What a host can customise
 
-- **Starting designs**: six (Timeless, Garden, Midnight, Rosé, Emerald, Coastal).
-- **Colours**: sixteen palettes, or any four colours (background, cards, accent, text).
-- **Lettering**: twelve font pairings.
+- **Starting designs**: fourteen across the four occasions.
+- **Colours**: twenty-one palettes, or any four colours (background, cards, accent, text).
+- **Lettering**: fifteen font pairings.
 - **Opening moment**: sealed envelope, grand doors, velvet curtains, heart locket, ribbon and
   bow, or rose petals.
-- **Cover**: one of twelve illustrated scenes or their own photo or video, in an ornate arch,
+- **Cover**: one of fourteen illustrated scenes (including balloons and a garden party) or their own photo or video, in an ornate arch,
   round arch, oval, or no frame.
 - **Sections**: date (scratch to reveal), couple, welcome message, verse or quote, timeline,
   countdown, location with map, dress code, gifts, photo gallery, RSVP, and any number of
   custom sections. Each can be reordered, hidden, retitled, and given its own photo or video.
 - **Music**: one of six built-in tracks, or an uploaded one. Optional.
-- **Movement**: floating petals, sparkles or hearts; illustrations that move gently; a turning
+- **Movement**: floating petals, sparkles, hearts, confetti or balloons; illustrations that move gently; a turning
   wreath around the monogram; effects tied to scrolling. Each can be switched off.
 - **Link**: `/i/<name>`, editable.
 

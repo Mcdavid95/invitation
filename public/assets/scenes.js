@@ -142,6 +142,36 @@ export const SCENE_ART = {
     for (let i = 0; i < 16; i++) s += `<ellipse class="sc-petal" cx="${(140 + r() * 110).toFixed(0)}" cy="${(440 + r() * 190).toFixed(0)}" rx="5" ry="2.600" transform="rotate(${(r() * 50 - 25).toFixed(0)} 195 520)" opacity="${(0.4 + r() * 0.5).toFixed(2)}"/>`;
     return `${sun(195, 480, 160)}${s}`;
   },
+
+  balloons: () => {
+    // Two bunches anchored at the lower corners, plus strays drifting up the edges, so the names stay clear.
+    const balloon = (x, y, r, k, sx, sy) => `<g class="sc-balloon"><path class="sc-line" d="M${x} ${y + r * 1.25} C${x - 8} ${y + r * 2.4} ${sx + 10} ${sy - 60} ${sx} ${sy}"/>
+      <ellipse class="sc-bal${k}" cx="${x}" cy="${y}" rx="${r}" ry="${(r * 1.22).toFixed(1)}"/><path class="sc-bal${k}" d="M${x - 4} ${y + r * 1.3} h8 l-4 -6z"/>
+      <ellipse class="sc-shine" cx="${x - r * 0.38}" cy="${y - r * 0.45}" rx="${(r * 0.2).toFixed(1)}" ry="${(r * 0.34).toFixed(1)}"/></g>`;
+    const left = [[52, 470, 24, 1], [96, 446, 22, 2], [72, 520, 21, 3], [30, 528, 19, 4], [116, 506, 19, 5], [62, 412, 18, 4]];
+    const right = [[338, 450, 24, 2], [292, 430, 21, 5], [312, 500, 22, 1], [360, 516, 19, 3], [272, 488, 18, 4], [330, 392, 18, 3]];
+    let s = `${sun(195, 520, 150)}${ridge('sc-a', 600, 14, 3, 70)}${ridge('sc-b', 650, 10, 8, 50)}`;
+    s += left.map(([x, y, r, k]) => balloon(x, y, r, k, 74, 690)).join('') + right.map(([x, y, r, k]) => balloon(x, y, r, k, 316, 690)).join('');
+    for (const [x, y, r, k] of [[34, 210, 13, 2], [360, 170, 12, 1], [22, 320, 10, 5], [372, 300, 11, 4]]) s += balloon(x, y, r, k, x + 8, y + 110);
+    return s + ridge('sc-c', 700, 8, 5, 40);
+  },
+
+  bunting: () => {
+    // Flags and lights hang across the top; a marquee and trees sit below the names.
+    const sag = (x, x0, x1, y, depth) => y + depth * (1 - ((2 * (x - x0)) / (x1 - x0) - 1) ** 2);
+    let flags = '<path class="sc-line" d="M-10 96 Q195 196 400 96"/>';
+    for (let i = 0, x = 4; x < 390; i++, x += 30) {
+      const y = sag(x, -10, 400, 96, 50);
+      flags += `<path class="sc-bal${(i % 5) + 1} sc-flag" d="M${x} ${y.toFixed(1)} l22 ${(sag(x + 22, -10, 400, 96, 50) - y).toFixed(1)} l-11 26z"/>`;
+    }
+    let bulbs = '<path class="sc-line" d="M-10 150 Q195 236 400 150"/>';
+    for (let i = 0, x = 16; x < 390; i++, x += 26) bulbs += `<circle class="sc-bulb tw${i % 3}" cx="${x}" cy="${(sag(x, -10, 400, 150, 43) + 5).toFixed(1)}" r="4.500"/>`;
+    const tent = `<g class="sc-p"><path d="M120 610 L195 548 L270 610z"/><path d="M128 610h134v40H128z"/></g>
+      <path class="sc-bal1" d="M195 548 L150 610 h22z M195 548 L218 610 h22z" opacity=".55"/><path class="sc-line" d="M195 548v-16"/><path class="sc-bal2 sc-flag" d="M195 532 l14 4 -14 4z"/>
+      <path class="sc-b" d="M182 650v-26a13 13 0 0 1 26 0v26z"/>`;
+    return `${sun(195, 470, 150)}${flags}${bulbs}${ridge('sc-a', 590, 16, 7, 80)}
+      ${cypress('sc-c', 70, 640, 120)}${cypress('sc-c', 320, 640, 120)}${cypress('sc-b', 98, 650, 84)}${cypress('sc-b', 292, 650, 84)}${tent}${ridge('sc-b', 650, 6, 4, 60)}${ridge('sc-c', 700, 8, 9, 40)}`;
+  },
 };
 
 // The opening each frame leaves in the 390 x 780 wall. Arch is the ornate multi-foil shape.

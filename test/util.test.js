@@ -26,6 +26,8 @@ test('rsvp: rejects missing name, non-boolean attending and bad client ids', () 
 test('slugs', () => {
   assert.equal(slugFrom('Chidi & Amára'), 'chidi-and-amara');
   assert.equal(slugFrom('!!!'), 'invitation');
+  assert.equal(slugFrom('Ada’s 30th Birthday'), 'adas-30th-birthday');
+  assert.equal(slugFrom('Grace & Daniel — 25th Anniversary'), 'grace-and-daniel-25th-anniversary');
   assert.equal(cleanSlug('chidi-and-amara'), 'chidi-and-amara');
   for (const bad of ['ab', 'A-b-c', '-abc', 'abc-', 'a--b', 'a b c', '../x', 'x'.repeat(51), 5]) assert.equal(cleanSlug(bad), '');
 });

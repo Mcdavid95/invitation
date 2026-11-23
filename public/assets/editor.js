@@ -156,7 +156,8 @@ function field(f, obj) {
     changed(opts);
   };
   const help = f.help ? h('small', { class: 'help', text: f.help }) : null;
-  const wrap = (control) => h('label', { class: 'field' }, h('span', { text: f.l }), control, help);
+  const label = f.kl?.[cfg.basics.kind] ?? f.l;
+  const wrap = (control) => h('label', { class: 'field' }, h('span', { text: label }), control, help);
   const v = obj[f.k];
 
   switch (f.t) {
@@ -169,17 +170,17 @@ function field(f, obj) {
     case 'select':
       if (f.tiles) {
         const t = cfg.theme;
-        return h('div', { class: 'field' }, h('span', { text: f.l }),
+        return h('div', { class: 'field' }, h('span', { text: label }),
           h('div', { class: `tiles ${f.tiles === 'scene' ? 'scenes' : ''}`, style: `--accent:${t.accent};--bg:${t.bg};--paper:${t.paper};--text:${t.text}` },
             f.options.map((o) => h('button', { type: 'button', class: `tile ${o === v ? 'on' : ''}`, ariaPressed: String(o === v), onclick: () => set(o, { redraw: true }) },
               f.tiles === 'scene' ? sceneThumb(o) : null, h('span', { text: f.labels[o] })))),
           help);
       }
       return wrap(h('select', { onchange: (e) => set(e.target.value) }, f.options.map((o) => h('option', { value: o, text: f.labels?.[o] ?? (f.k === 'utcOffset' ? `UTC${o}` : o[0].toUpperCase() + o.slice(1)), selected: o === v }))));
-    case 'bool': return h('label', { class: 'field check' }, h('input', { type: 'checkbox', checked: v, onchange: (e) => set(e.target.checked) }), h('span', { text: f.l }));
+    case 'bool': return h('label', { class: 'field check' }, h('input', { type: 'checkbox', checked: v, onchange: (e) => set(e.target.checked) }), h('span', { text: label }));
 
     case 'colors':
-      return h('div', { class: 'field' }, h('span', { text: f.l }),
+      return h('div', { class: 'field' }, h('span', { text: label }),
         h('div', { class: 'chips' },
           v.map((c, i) => h('span', { class: 'chip' },
             h('input', { type: 'color', value: c, ariaLabel: `Shade ${i + 1}`, oninput: (e) => { v[i] = e.target.value; changed(); } }),
@@ -188,7 +189,7 @@ function field(f, obj) {
 
     case 'media': {
       const thumb = v ? (v.kind === 'video' ? h('video', { src: v.url, muted: true, preload: 'metadata' }) : h('img', { src: v.url, alt: '' })) : null;
-      return h('div', { class: 'field' }, h('span', { text: f.l }),
+      return h('div', { class: 'field' }, h('span', { text: label }),
         h('div', { class: 'mediabox' }, thumb,
           h('div', {},
             picker(v ? 'Replace' : 'Upload photo or video', 'image/jpeg,image/png,image/webp,image/gif,image/avif,video/mp4,video/webm', ['image', 'video'], false, ([m]) => { if (v) trash.push(v.url); set(m, { redraw: true }); }),
@@ -218,7 +219,7 @@ function field(f, obj) {
         return h('div', { class: `track ${selected ? 'on' : ''}` }, play,
           h('button', { type: 'button', class: 'pick', ariaPressed: String(selected), text: label, onclick: () => choose(url) }));
       };
-      return h('div', { class: 'field' }, h('span', { text: f.l }),
+      return h('div', { class: 'field' }, h('span', { text: label }),
         h('div', { class: 'tracks' },
           row('', 'No music', !v),
           Object.entries(SOUNDS).map(([key, label]) => row(soundUrl(key), label, v === soundUrl(key))),
@@ -228,13 +229,13 @@ function field(f, obj) {
         help);
     }
     case 'images':
-      return h('div', { class: 'field' }, h('span', { text: f.l }),
+      return h('div', { class: 'field' }, h('span', { text: label }),
         h('div', { class: 'thumbs' }, v.map((url, i) => h('span', {}, h('img', { src: url, alt: '' }),
           h('button', { type: 'button', ariaLabel: `Remove photo ${i + 1}`, text: '×', onclick: () => { trash.push(url); v.splice(i, 1); changed({ redraw: true }); } })))),
         v.length < f.max ? h('div', {}, picker('Add photos', 'image/jpeg,image/png,image/webp,image/gif,image/avif', ['image'], true, (ms) => { v.push(...ms.map((m) => m.url).slice(0, f.max - v.length)); changed({ redraw: true }); })) : null);
 
     case 'list':
-      return h('div', { class: 'field' }, h('span', { text: f.l }),
+      return h('div', { class: 'field' }, h('span', { text: label }),
         v.map((item, i) => h('div', { class: 'item' },
           h('div', { class: 'itemfields' }, f.item.map((sub) => field(sub, item))),
           h('div', { class: 'itemctl' },
@@ -351,7 +352,7 @@ function draw() {
   const y = pane.scrollTop;
   pane.replaceChildren(
     h('h2', { class: 'group', text: 'Design' }),
-    panel('basics', GROUPS.basics.label, GROUPS.basics.fields.map((f) => field(f, cfg.basics))),
+    panel('basics', GROUPS.basics.label, GROUPS.basics.fields.filter((f) => !f.kinds || f.kinds.includes(cfg.basics.kind)).map((f) => field(f, cfg.basics))),
     themePanel(),
     ...['intro', 'hero', 'motion', 'music'].map((g) => panel(g, GROUPS[g].label, GROUPS[g].fields.map((f) => field(f, cfg[g])))),
     h('h2', { class: 'group', text: 'Sections' }),

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { sanitizeConfig, starterConfig, SAMPLE, mediaKind, monogramOf, inviteTitle, LIMITS, STARTER_LIST, INTROS, SCENES, FONTS, SOUNDS } from '../public/assets/schema.js';
+import { sanitizeConfig, starterConfig, sampleConfig, KINDS, ordinal, displayNames, occasionLine, hostsLabel, AMBIENT, PALETTES, SAMPLE, mediaKind, monogramOf, inviteTitle, LIMITS, STARTER_LIST, INTROS, SCENES, FONTS, SOUNDS } from '../public/assets/schema.js';
 import { SCENE_ART, FRAME_ART } from '../public/assets/scenes.js';
 
 test('a starter config survives sanitising unchanged', () => {
@@ -59,7 +59,7 @@ test('text is length-limited and control characters removed', () => {
   const cfg = SAMPLE();
   cfg.basics.first = 'A\u0000B\nC' + 'x'.repeat(500);
   const out = sanitizeConfig(cfg);
-  assert.equal(out.basics.first.length, 200);
+  assert.equal(out.basics.first.length, 60);
   assert.ok(out.basics.first.startsWith('ABC'));
   const rsvp = sanitizeConfig({ sections: [{ type: 'rsvp', maxGuests: 9999 }] }).sections[0];
   assert.equal(rsvp.maxGuests, 20);
@@ -74,7 +74,15 @@ test('mediaKind only recognises uploaded files', () => {
 });
 
 test('every starter builds', () => {
-  for (const s of [...STARTER_LIST.map((x) => x.id), 'unknown']) assert.equal(starterConfig(s).sections.length, 10);
+  for (const st of STARTER_LIST) {
+    const cfg = starterConfig(st.id);
+    assert.equal(cfg.basics.kind, st.kind, st.id);
+    assert.ok(cfg.sections.length >= 5, st.id);
+    assert.equal(cfg.sections.some((x) => x.type === 'rsvp'), true, st.id);
+    // wedding designs introduce the couple; the others introduce a guest of honour
+    assert.equal(cfg.sections[st.kind === 'wedding' ? 1 : 0].type, st.kind === 'wedding' ? 'couple' : 'honoree', st.id);
+  }
+  assert.equal(starterConfig('unknown').basics.kind, 'wedding');
 });
 
 test('design options meet the promised minimums and every scene and frame has artwork', () => {
@@ -102,5 +110,50 @@ test('music accepts built-in tracks and uploads, nothing else', () => {
 test('movement settings default on for older invitations and can each be switched off', () => {
   assert.deepEqual(sanitizeConfig({}).motion, { ambient: 'petals', living: true, wreath: true, scroll: true });
   assert.deepEqual(sanitizeConfig({ motion: { ambient: 'none', living: false, wreath: false, scroll: false } }).motion, { ambient: 'none', living: false, wreath: false, scroll: false });
-  assert.equal(sanitizeConfig({ motion: { ambient: 'confetti' } }).motion.ambient, 'petals');
+  assert.equal(sanitizeConfig({ motion: { ambient: 'fireworks' } }).motion.ambient, 'petals');
+});
+
+test('every occasion has at least two starting designs and a working sample', () => {
+  for (const kind of Object.keys(KINDS)) {
+    assert.ok(STARTER_LIST.filter((s) => s.kind === kind).length >= 2, kind);
+    const cfg = sampleConfig(kind);
+    assert.equal(cfg.basics.kind, kind);
+    assert.notEqual(inviteTitle(cfg), 'Untitled invitation');
+  }
+});
+
+test('a starter from another occasion is swapped for one that fits', () => {
+  const cfg = starterConfig('timeless', { kind: 'birthday', first: 'Ada' });
+  assert.equal(cfg.basics.kind, 'birthday');
+  assert.equal(cfg.sections.some((s) => s.type === 'couple'), false);
+});
+
+test('titles, names and wording follow the occasion', () => {
+  const make = (basics) => sanitizeConfig({ basics });
+  const bday = make({ kind: 'birthday', first: 'Ada', second: 'Ignored', milestone: 30 });
+  assert.equal(inviteTitle(bday), 'Ada’s 30th Birthday');
+  assert.equal(displayNames(bday), 'Ada');
+  assert.deepEqual(monogramOf(bday), ['A']);
+  assert.equal(hostsLabel(bday), 'Ada');
+  assert.equal(occasionLine(make({ kind: 'birthday', first: 'Ada' })), 'Birthday Celebration');
+  const ann = make({ kind: 'anniversary', first: 'Grace', second: 'Daniel', milestone: 25 });
+  assert.equal(inviteTitle(ann), 'Grace & Daniel — 25th Anniversary');
+  assert.equal(hostsLabel(ann), 'the couple');
+  const other = make({ kind: 'custom', title: 'Baby Shower' });
+  assert.equal(inviteTitle(other), 'Baby Shower');
+  assert.deepEqual(monogramOf(other), ['B']);
+  assert.equal(hostsLabel(other), 'the hosts');
+  assert.equal(inviteTitle(make({ kind: 'custom' })), 'Untitled invitation');
+  assert.equal(make({ kind: 'party', milestone: -4 }).basics.kind, 'wedding');
+  assert.equal(make({ kind: 'birthday', milestone: 9999 }).basics.milestone, 150);
+});
+
+test('ordinals', () => {
+  assert.deepEqual([1, 2, 3, 4, 11, 12, 13, 21, 22, 30, 101, 111, 112].map(ordinal), ['1st', '2nd', '3rd', '4th', '11th', '12th', '13th', '21st', '22nd', '30th', '101st', '111th', '112th']);
+});
+
+test('party options exist', () => {
+  for (const k of ['confetti', 'balloons']) assert.ok(AMBIENT[k]);
+  for (const k of ['candy', 'sunshine', 'mint', 'silver', 'ruby']) assert.ok(PALETTES[k]);
+  for (const k of ['balloons', 'bunting']) assert.match(SCENE_ART[k](), /sc-bal/);
 });

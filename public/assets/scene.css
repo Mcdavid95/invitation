@@ -11,3 +11,24 @@
 .sc-win { fill: color-mix(in srgb, var(--accent) 12%, var(--bg)); }
 .sc-branch { fill: none; stroke: color-mix(in srgb, var(--accent) 45%, var(--bg)); stroke-width: 2.4; stroke-linecap: round; }
 .sc-petal { fill: color-mix(in srgb, var(--accent) 35%, var(--paper)); }
+
+/* Party colours: the theme accent and four hues spread around it, so balloons, flags and
+   confetti are festive in any palette. Browsers without relative colours fall back to tints. */
+.scene, .tile, .ambient {
+  --c1: var(--accent);
+  --c2: color-mix(in srgb, var(--accent) 55%, #fff);
+  --c3: color-mix(in srgb, var(--accent) 70%, var(--text));
+  --c4: color-mix(in srgb, var(--accent) 35%, var(--bg));
+  --c5: color-mix(in srgb, var(--accent) 80%, #fff);
+}
+@supports (color: oklch(from red l c h)) {
+  .scene, .tile, .ambient {
+    --c2: oklch(from var(--accent) max(l, .68) max(c, .11) calc(h + 75));
+    --c3: oklch(from var(--accent) max(l, .66) max(c, .12) calc(h + 150));
+    --c4: oklch(from var(--accent) max(l, .74) max(c, .1) calc(h + 215));
+    --c5: oklch(from var(--accent) max(l, .8) max(c, .12) calc(h + 290));
+  }
+}
+.sc-bal1 { fill: var(--c1); } .sc-bal2 { fill: var(--c2); } .sc-bal3 { fill: var(--c3); } .sc-bal4 { fill: var(--c4); } .sc-bal5 { fill: var(--c5); }
+.sc-shine { fill: #fff; opacity: .45; }
+.sc-bulb { fill: color-mix(in srgb, var(--accent-hi, var(--accent)) 40%, #fff9d8); }

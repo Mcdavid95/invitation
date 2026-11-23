@@ -45,7 +45,11 @@ textarea { resize: vertical; }
 .phone { width: 300px; height: 600px; margin: 0 auto; border-radius: 34px; border: 9px solid #2b2620; overflow: hidden; background: #000; box-shadow: 0 20px 50px rgba(80, 60, 30, .25); flex: none; }
 .phone iframe { width: 390px; height: 100%; border: 0; display: block; background: #fff; transform-origin: 0 0; }
 .landing .phone iframe { height: 805px; transform: scale(.7231); }
-.features { max-width: 1060px; margin: 0 auto; padding: 24px 24px 72px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+.features { max-width: 1060px; margin: 0 auto; padding: 24px 24px 72px; display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 20px; }
+.sample { display: grid; justify-items: center; gap: 14px; }
+.sample-tabs { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+.sample-tabs button { font: 600 13px system-ui, sans-serif; padding: 8px 14px; border-radius: 99px; border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; min-height: 36px; }
+.sample-tabs button[aria-pressed=true] { background: var(--gold); border-color: var(--gold); color: #fff; }
 .features article { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 22px; }
 .features p { color: var(--muted); margin: 8px 0 0; font-size: 15px; }
 .foot { text-align: center; padding: 28px; color: var(--muted); font: 400 26px 'Pinyon Script', cursive; border-top: 1px solid var(--line); }
@@ -79,11 +83,19 @@ textarea { resize: vertical; }
 .modal legend { font-size: 14px; font-weight: 600; padding: 0; margin-bottom: 6px; }
 .two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .starters { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.occasions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.modal .occasion { border: 1px solid var(--line); border-radius: 12px; padding: 10px 8px; cursor: pointer; text-align: center; margin: 0; display: grid; gap: 2px; align-content: center; min-height: 64px; }
+.occasion:has(input:checked) { border-color: var(--gold); box-shadow: 0 0 0 2px var(--gold); background: #fdf9f2; }
+.occasion:has(input:focus-visible) { outline: 2px solid var(--ink); outline-offset: 2px; }
+.occasion input { position: absolute; opacity: 0; }
+.occasion strong { font-size: 14px; }
+.occasion small { font-weight: 400; color: var(--muted); font-size: 11.5px; line-height: 1.3; }
+.starter:has(input:focus-visible) { outline: 2px solid var(--ink); outline-offset: 2px; }
 .modal { width: min(94vw, 600px); }
 .starter { border: 1px solid var(--line); border-radius: 12px; padding: 12px; cursor: pointer; text-align: center; margin: 0 !important; }
 .starter:has(input:checked) { border-color: var(--gold); box-shadow: 0 0 0 2px var(--gold); }
 .starter input { position: absolute; opacity: 0; }
-.starter .swatch { display: grid; place-items: center; height: 64px; border-radius: 8px; border: 1px solid; font: 400 26px 'Pinyon Script', cursive; margin-bottom: 8px; }
+.starter .swatch { display: grid; place-items: center; height: 64px; border-radius: 8px; border: 1px solid; font: 400 30px 'Pinyon Script', cursive; margin-bottom: 8px; }
 .starter small { display: block; font-weight: 400; color: var(--muted); font-size: 12px; line-height: 1.3; }
 .modal .button.big { margin-top: 10px; }
 .table { overflow: auto; margin: 10px 0 16px; }
@@ -173,7 +185,6 @@ audio { width: 100%; margin-bottom: 8px; }
 
 @media (max-width: 860px) {
   .landing .pitch { grid-template-columns: 1fr; padding-top: 36px; gap: 36px; }
-  .features { grid-template-columns: 1fr 1fr; }
   .work { grid-template-columns: 1fr; }
   .pane { border: 0; }
   .stage { display: none; }
@@ -187,8 +198,8 @@ audio { width: 100%; margin-bottom: 8px; }
   .show-preview #replay { display: inline; }
 }
 @media (max-width: 520px) {
-  .features { grid-template-columns: 1fr; }
   .starters, .two { grid-template-columns: 1fr; }
+  .occasions { grid-template-columns: 1fr 1fr; }
   .palettes, .fonts { grid-template-columns: repeat(3, 1fr); }
   .top { padding: 10px 14px; }
   #who { display: none; }

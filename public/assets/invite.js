@@ -1,4 +1,4 @@
-import { FONTS, INTROS, monogramOf, inviteTitle, SAMPLE } from './schema.js';
+import { FONTS, INTROS, KINDS, monogramOf, inviteTitle, displayNames, occasionLine, hostsLabel, ordinal, sampleConfig } from './schema.js';
 import { SCENE_ART, FRAME_ART } from './scenes.js';
 
 const SVG = 'http://www.w3.org/2000/svg';
@@ -191,6 +191,25 @@ const RENDER = {
     } else if (dt) body = h('p', { class: 'date-plain', text: longDate(dt) });
     return [s.title ? h('h2', { class: 'script', text: s.title }) : null, mediaEl(s.media), body];
   },
+  honoree(s, cfg) {
+    const b = cfg.basics;
+    const names = displayNames(cfg);
+    // For "something else", the event name is the headline and any names sit beneath it.
+    const big = b.kind === 'custom' ? b.title.trim() || names : names;
+    const small = b.kind === 'custom' && b.title.trim() ? names : '';
+    const n = b.milestone;
+    const badge = s.showMilestone && n > 0 && (b.kind === 'birthday' || b.kind === 'anniversary')
+      ? h('div', { class: 'badge' }, cfg.motion.wreath ? wreath() : null,
+          h('b', {}, String(n), h('sup', { text: ordinal(n).slice(String(n).length) })),
+          h('span', { text: s.milestoneLabel || KINDS[b.kind] }))
+      : null;
+    return [
+      mediaEl(s.media), para(s.eventLine, 'caps'),
+      big ? h('p', { class: 'name script', text: big }) : null,
+      small ? h('p', { class: 'caps who', text: small }) : null,
+      badge, para(s.subtitle, 'subline'), para(s.text),
+    ];
+  },
   couple(s, cfg) {
     const who = (name, label, parents) => [
       name ? h('p', { class: 'name script', text: name }) : null,
@@ -271,8 +290,8 @@ const RENDER = {
       s.linkUrl && s.linkLabel ? h('a', { class: 'text-link script', href: s.linkUrl, target: '_blank', rel: 'noopener', text: s.linkLabel }) : null,
     ];
   },
-  rsvp(s) {
-    const dialog = rsvpDialog(s);
+  rsvp(s, cfg) {
+    const dialog = rsvpDialog(s, cfg);
     const text = [s.text, s.deadline ? `by ${longDate(s.deadline)}` : ''].filter(Boolean).join(' ');
     return [heading(s.title), mediaEl(s.media), para(text), h('button', { class: 'btn', type: 'button', text: s.button || 'RSVP', onclick: () => dialog.showModal() }), dialog];
   },
@@ -290,7 +309,7 @@ function clientId() {
   }
 }
 
-function rsvpDialog(s) {
+function rsvpDialog(s, cfg) {
   const msg = h('p', { class: 'form-msg', role: 'alert' });
   const submit = h('button', { class: 'btn', type: 'submit', text: 'Submit' });
   const guests = h('select', { name: 'guests' }, Array.from({ length: s.maxGuests }, (_, i) => h('option', { value: i + 1, text: i + 1 })));
@@ -303,7 +322,7 @@ function rsvpDialog(s) {
       h('label', { class: 'radio' }, h('input', { type: 'radio', name: 'attending', value: 'yes' }), 'Yes, I will'),
       h('label', { class: 'radio' }, h('input', { type: 'radio', name: 'attending', value: 'no' }), "Unfortunately, I can't")),
     guestsField,
-    s.askMessage ? h('label', {}, 'A message for the couple (optional)', h('textarea', { name: 'message', maxLength: 500 })) : null,
+    s.askMessage ? h('label', {}, `A message for ${hostsLabel(cfg)} (optional)`, h('textarea', { name: 'message', maxLength: 500 })) : null,
     msg, submit);
   const thanksText = h('p');
   const dialog = h('dialog', {});
@@ -360,12 +379,14 @@ function hero(cfg) {
   else scene.querySelector('.l-scene').innerHTML = (SCENE_ART[c.scene] ?? SCENE_ART.sky)();
   scene.querySelector('.l-frame').innerHTML = (FRAME_ART[c.frame] ?? FRAME_ART.none)();
   if (c.media && c.frame === 'none') scene.querySelector('.l-flowers').remove();
-  const title = inviteTitle(cfg);
+  const names = displayNames(cfg) || (cfg.basics.kind === 'custom' ? cfg.basics.title.trim() : '');
+  const occasion = c.showOccasion ? occasionLine(cfg) : '';
   return h('section', { class: `hero ${c.media ? 'has-media' : ''} frame-${c.frame}` },
     mediaEl(c.media, 'hero-media'), scene,
     h('div', { class: 'hero-text' },
       c.showMonogram ? monoWithWreath(cfg, 'hero-mono') : null,
-      c.showNames && (cfg.basics.first || cfg.basics.second) ? h('p', { class: 'hero-names script', text: title }) : null,
+      c.showNames && names ? h('p', { class: 'hero-names script', text: names }) : null,
+      occasion && occasion !== names ? h('p', { class: 'hero-tag hero-occ', text: occasion }) : null,
       para(c.tagline, 'hero-tag')),
     c.cue ? h('div', { class: 'scroll-cue' }, h('span', { class: 'script', text: c.cue }), chevron()) : null);
 }
@@ -468,7 +489,7 @@ const rnd = (i, n) => {
 function ambient(cfg) {
   const kind = cfg.motion.ambient;
   if (kind === 'none') return null;
-  const count = kind === 'sparkles' ? 16 : 12;
+  const count = { sparkles: 16, confetti: 22, balloons: 9 }[kind] ?? 12;
   return h('div', { class: `ambient amb-${kind}`, ariaHidden: 'true' }, Array.from({ length: count }, (_, i) =>
     h('i', { style: `--x:${(rnd(i, 1) * 96).toFixed(1)}%;--y:${(6 + rnd(i, 2) * 86).toFixed(1)}%;--s:${(0.6 + rnd(i, 3) * 0.8).toFixed(2)};--dx:${((rnd(i, 4) - 0.5) * 140).toFixed(0)}px;--r:${(120 + rnd(i, 5) * 480).toFixed(0)}deg;--d:${(kind === 'sparkles' ? 2.4 + rnd(i, 6) * 3 : 9 + rnd(i, 6) * 9).toFixed(1)}s;--w:${(-rnd(i, 7) * 18).toFixed(1)}s` })));
 }
@@ -589,5 +610,5 @@ if (params.has('preview')) {
   } catch {}
   mode.demo = !data?.slug;
   mode.slug = data?.slug ?? null;
-  render(data?.cfg ?? SAMPLE());
+  render(data?.cfg ?? sampleConfig());
 }

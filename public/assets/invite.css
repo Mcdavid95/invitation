@@ -214,7 +214,17 @@ h2.script { font-size: 40px; line-height: 1.1; margin: 0; overflow-wrap: anywher
 .date-plain { font-size: 30px; margin-top: 14px; color: var(--accent); }
 
 /* ---------- Couple, message, quote ---------- */
-.couple .name { font-size: 64px; line-height: 1.15; margin: 22px 0 14px; }
+.couple .name, .honoree .name { font-size: 64px; line-height: 1.15; margin: 22px 0 14px; }
+.honoree .name { font-size: clamp(44px, 14vw, 64px); }
+.honoree .who { margin-top: -4px; }
+.honoree .subline { margin-top: 14px; font-style: italic; }
+.honoree .media + .caps { margin-top: 26px; }
+.badge { position: relative; display: grid; place-content: center; width: 150px; height: 150px; margin: 18px auto 6px; border-radius: 50%; color: var(--accent); box-shadow: inset 0 0 0 1px var(--line), inset 0 0 0 6px var(--bg), inset 0 0 0 7px var(--accent-soft); }
+.badge b { font: 500 60px/1 var(--body), serif; font-variant-numeric: lining-nums; }
+.badge sup { font-size: .36em; vertical-align: 1.2em; margin-left: 1px; }
+.badge span { font: 400 11px var(--caps), serif; letter-spacing: .3em; text-transform: uppercase; margin-top: 6px; }
+.badge .wreath-ring { width: 196px; height: 196px; margin: -98px 0 0 -98px; }
+.hero-occ { margin-top: 12px; }
 .couple .with { font-size: 30px; margin-top: 18px; }
 .message.florals { padding-left: 76px; padding-right: 76px; }
 .message h3 { font-size: 28px; margin: 0 0 10px; }
@@ -338,6 +348,16 @@ dialog .radio input { accent-color: var(--accent); width: 18px; height: 18px; ma
 .amb-hearts i { bottom: -6%; width: 20px; height: 18px; background: color-mix(in srgb, var(--accent) 70%, var(--paper)); clip-path: path('M10 18C2 12 0 7 0 5a5 5 0 0 1 10-2 5 5 0 0 1 10 2c0 2-2 7-10 13z'); animation: rise var(--d) linear var(--w) infinite; }
 .amb-sparkles i { top: var(--y); width: 14px; height: 14px; background: var(--accent-hi); clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%); animation: twinkle var(--d) ease-in-out var(--w) infinite; }
 @keyframes drift { 0% { opacity: 0; transform: translate3d(0, 0, 0) rotate(0) scale(var(--s)); } 8%, 85% { opacity: .75; } 100% { opacity: 0; transform: translate3d(var(--dx), 112vh, 0) rotate(var(--r)) scale(var(--s)); } }
+/* confetti tumbles as it falls; balloons drift up on a string */
+.amb-confetti i { top: -4%; width: 7px; height: 12px; border-radius: 1px; background: var(--c1); animation: tumble var(--d) linear var(--w) infinite; }
+.amb-confetti i:nth-child(5n+2) { background: var(--c2); } .amb-confetti i:nth-child(5n+3) { background: var(--c3); width: 9px; height: 9px; border-radius: 50%; }
+.amb-confetti i:nth-child(5n+4) { background: var(--c4); } .amb-confetti i:nth-child(5n) { background: var(--c5); }
+.amb-balloons i { bottom: -12%; width: 26px; height: 32px; border-radius: 50% 50% 48% 48% / 55% 55% 45% 45%; background: radial-gradient(circle at 34% 30%, rgba(255, 255, 255, .55), transparent 32%), var(--c1); animation: rise calc(var(--d) * 1.4) linear var(--w) infinite; }
+.amb-balloons i::after { content: ''; position: absolute; left: 50%; top: 100%; width: 1px; height: 34px; background: var(--line); }
+.amb-balloons i:nth-child(4n+2) { background: radial-gradient(circle at 34% 30%, rgba(255, 255, 255, .55), transparent 32%), var(--c2); }
+.amb-balloons i:nth-child(4n+3) { background: radial-gradient(circle at 34% 30%, rgba(255, 255, 255, .55), transparent 32%), var(--c3); }
+.amb-balloons i:nth-child(4n) { background: radial-gradient(circle at 34% 30%, rgba(255, 255, 255, .55), transparent 32%), var(--c4); }
+@keyframes tumble { 0% { opacity: 0; transform: translate3d(0, 0, 0) rotate3d(1, .4, .2, 0) scale(var(--s)); } 8%, 88% { opacity: .9; } 100% { opacity: 0; transform: translate3d(var(--dx), 112vh, 0) rotate3d(1, .4, .2, calc(var(--r) * 3)) scale(var(--s)); } }
 @keyframes rise { 0% { opacity: 0; transform: translate3d(0, 0, 0) scale(var(--s)); } 10%, 70% { opacity: .5; } 100% { opacity: 0; transform: translate3d(var(--dx), -112vh, 0) scale(var(--s)); } }
 @keyframes twinkle { 0%, 100% { opacity: 0; transform: scale(.2) rotate(0); } 50% { opacity: .85; transform: scale(var(--s)) rotate(45deg); } }
 
@@ -357,6 +377,14 @@ dialog .radio input { accent-color: var(--accent); width: 18px; height: 18px; ma
 .living .sc-wave { animation: float 5s ease-in-out infinite alternate; }
 .living .sc-wave:nth-of-type(2n) { animation-direction: alternate-reverse; animation-duration: 6.5s; }
 .living .sc-boat { animation: bob 4s ease-in-out infinite alternate; }
+.living .sc-balloon { transform-box: fill-box; transform-origin: 50% 100%; animation: sway 6s ease-in-out infinite alternate; }
+.living .sc-balloon:nth-of-type(2n) { animation-duration: 7.5s; animation-direction: alternate-reverse; }
+.living .sc-balloon:nth-of-type(3n) { animation-duration: 9s; }
+.living .sc-flag { transform-box: fill-box; transform-origin: 50% 0; animation: sway 3.5s ease-in-out infinite alternate; }
+.living .sc-flag:nth-of-type(2n) { animation-direction: alternate-reverse; }
+.living .sc-bulb.tw0 { animation: star 1.8s ease-in-out infinite alternate; }
+.living .sc-bulb.tw1 { animation: star 2.4s ease-in-out -.7s infinite alternate; }
+.living .sc-bulb.tw2 { animation: star 3s ease-in-out -1.4s infinite alternate; }
 .living .sc-petal { animation: petalfall 9s linear infinite; }
 .living .sc-petal:nth-of-type(2n) { animation-duration: 12s; animation-delay: -5s; }
 .living .sc-petal:nth-of-type(3n) { animation-duration: 15s; animation-delay: -9s; }

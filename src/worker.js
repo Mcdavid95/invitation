@@ -1,5 +1,5 @@
 import {
-  sanitizeConfig, starterConfig, inviteTitle, newId, SAMPLE, LIMITS,
+  sanitizeConfig, starterConfig, inviteTitle, newId, sampleConfig, KINDS, LIMITS,
   UPLOAD_TYPES, UPLOAD_MAX, CONTENT_TYPE_BY_EXT, UTC_OFFSETS, SOUNDS,
 } from '../public/assets/schema.js';
 import { hashPassword, login, createSession, destroySession, userFromRequest, sessionCookie } from './auth.js';
@@ -87,7 +87,8 @@ async function route(req, env) {
     return serveObject(req, env, `sounds/${id}.mp3`, 'audio/mpeg');
   }
   if (seg[0] === 'i' && seg.length === 2) return publicInvite(req, env, seg[1]);
-  if (path === '/demo') return renderInvite({ cfg: SAMPLE(), demo: true }, 'Sample invitation');
+  if (path === '/demo') return renderInvite({ cfg: sampleConfig('wedding'), demo: true }, 'Sample invitation');
+  if (seg[0] === 'demo' && seg.length === 2 && Object.hasOwn(KINDS, seg[1])) return renderInvite({ cfg: sampleConfig(seg[1]), demo: true }, 'Sample invitation');
   if (seg[0] === 'edit' && seg.length === 2) return asset('/editor');
   if (path === '/dashboard' || path === '/editor') {
     if (!(await userFromRequest(env.DB, req))) return Response.redirect(new URL('/login', url), 302);
@@ -202,7 +203,7 @@ async function api(req, env, url, seg) {
   if (is('GET', 'invites')) {
     const { results } = await db
       .prepare(
-        `SELECT i.id, i.slug, i.title, i.published, i.updated_at AS updatedAt,
+        `SELECT i.id, i.slug, i.title, i.kind, i.published, i.updated_at AS updatedAt,
            COALESCE(SUM(r.attending), 0) AS yes,
            COALESCE(SUM(1 - r.attending), 0) AS no,
            COALESCE(SUM(CASE WHEN r.attending = 1 THEN r.guests ELSE 0 END), 0) AS guests
@@ -219,8 +220,11 @@ async function api(req, env, url, seg) {
     const { n } = await db.prepare('SELECT COUNT(*) AS n FROM invites WHERE user_id = ?').bind(user.id).first();
     if (n >= MAX_INVITES) throw new HttpError(403, `You can have up to ${MAX_INVITES} invitations. Delete one to make room.`);
     const cfg = starterConfig(String(b.starter ?? ''), {
+      kind: Object.hasOwn(KINDS, b.kind) ? b.kind : 'wedding',
+      title: String(b.title ?? '').slice(0, 80),
       first: String(b.first ?? '').slice(0, 60),
       second: String(b.second ?? '').slice(0, 60),
+      milestone: b.milestone,
       dateTime: b.dateTime,
       utcOffset: UTC_OFFSETS.includes(b.utcOffset) ? b.utcOffset : '+00:00',
     });
@@ -229,8 +233,8 @@ async function api(req, env, url, seg) {
     // The random suffix makes a collision vanishingly unlikely; UNIQUE still has the last word.
     const slug = `${slugFrom(inviteTitle(cfg))}-${newId().slice(0, 4)}`;
     await db
-      .prepare('INSERT INTO invites (id, user_id, slug, title, config, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)')
-      .bind(id, user.id, slug, inviteTitle(cfg), JSON.stringify(cfg), now, now)
+      .prepare('INSERT INTO invites (id, user_id, slug, title, kind, config, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
+      .bind(id, user.id, slug, inviteTitle(cfg), cfg.basics.kind, JSON.stringify(cfg), now, now)
       .run();
     return json({ id, slug }, 201);
   }
@@ -255,8 +259,8 @@ async function api(req, env, url, seg) {
     try {
       // The version check stops a second tab or device from silently overwriting newer edits.
       res = await db
-        .prepare('UPDATE invites SET config = ?, title = ?, slug = ?, published = ?, version = version + 1, updated_at = ? WHERE id = ? AND version = ?')
-        .bind(text, inviteTitle(cfg), slug, published, Date.now(), invite.id, Number(b.version))
+        .prepare('UPDATE invites SET config = ?, title = ?, kind = ?, slug = ?, published = ?, version = version + 1, updated_at = ? WHERE id = ? AND version = ?')
+        .bind(text, inviteTitle(cfg), cfg.basics.kind, slug, published, Date.now(), invite.id, Number(b.version))
         .run();
     } catch (e) {
       if (String(e.message).includes('UNIQUE')) throw new HttpError(409, 'That link is already taken. Try another.');
