@@ -25,5 +25,28 @@
   ],
   "observability": {
     "enabled": true
+  },
+  // A second Cloudflare account. Deploy with `npm run deploy:second`.
+  // Bindings are not inherited between environments, so they are repeated here.
+  "env": {
+    "second": {
+      "name": "invitation",
+      "workers_dev": true,
+      "preview_urls": false,
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "invitation",
+          "database_id": "a6ace944-0730-4c38-b037-0076e6a1e825",
+          "migrations_dir": "migrations"
+        }
+      ],
+      "r2_buckets": [
+        {
+          "binding": "MEDIA",
+          "bucket_name": "invitation-media"
+        }
+      ]
+    }
   }
 }

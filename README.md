@@ -128,3 +128,23 @@ npm run db:migrate
 ```bash
 npm run deploy
 ```
+
+### Second account
+
+`wrangler.jsonc` has a `second` environment for another Cloudflare account, with its own D1
+database. With that account's token saved, the first deploy is:
+
+```bash
+npm run db:migrate:second
+```
+
+```bash
+npm run deploy:second
+```
+
+```bash
+npm run sounds:upload:second
+```
+
+Bindings are not inherited between wrangler environments, so a new binding has to be added to
+both the top level and `env.second`.
