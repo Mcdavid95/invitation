@@ -1,4 +1,4 @@
-# Sealed — digital wedding invitations
+# Sealed / WedPass — digital invitations
 
 A product for building and sharing invitations for weddings, birthdays, anniversaries and any other occasion. People sign up, start from a design,
 customise it in an editor with a live preview, publish it to a link, and collect RSVPs.
@@ -129,22 +129,24 @@ npm run db:migrate
 npm run deploy
 ```
 
-### Second account
+### WedPass (second account)
 
-`wrangler.jsonc` has a `second` environment for another Cloudflare account, with its own D1
-database. With that account's token saved, the first deploy is:
+The same app runs as **WedPass** on a second Cloudflare account, through the `wedpass`
+environment in `wrangler.jsonc`: its own Worker (`wedpass`), D1 database and R2 bucket. The
+product name shown in the pages comes from the `BRAND` variable, so the first account's
+deployment keeps "Sealed". With that account's token saved:
 
 ```bash
-npm run db:migrate:second
+npm run db:migrate:wedpass
 ```
 
 ```bash
-npm run deploy:second
+npm run deploy:wedpass
 ```
 
 ```bash
-npm run sounds:upload:second
+npm run sounds:upload:wedpass
 ```
 
 Bindings are not inherited between wrangler environments, so a new binding has to be added to
-both the top level and `env.second`.
+both the top level and `env.wedpass`.

@@ -26,11 +26,17 @@
   "observability": {
     "enabled": true
   },
-  // A second Cloudflare account. Deploy with `npm run deploy:second`.
+  "vars": {
+    "BRAND": "Sealed"
+  },
+  // WedPass, on a second Cloudflare account. Deploy with `npm run deploy:wedpass`.
   // Bindings are not inherited between environments, so they are repeated here.
   "env": {
-    "second": {
-      "name": "invitation",
+    "wedpass": {
+      "name": "wedpass",
+      "vars": {
+        "BRAND": "WedPass"
+      },
       "workers_dev": true,
       "preview_urls": false,
       "d1_databases": [

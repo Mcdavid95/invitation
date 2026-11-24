@@ -47,6 +47,7 @@ function secure(res) {
 
 export default {
   async fetch(req, env) {
+    BRAND = typeof env.BRAND === 'string' && env.BRAND.trim() ? env.BRAND.trim() : 'Sealed';
     try {
       return secure(await route(req, env));
     } catch (e) {
@@ -58,12 +59,17 @@ export default {
 };
 
 /** Serves a file bundled from public/. "/login" resolves to "/login.html". Returns null when there is none. */
+// The product name differs per deployment (wrangler var BRAND); files carry __BRAND__ in its place.
+let BRAND = 'Sealed';
+const branded = (body) => body.replaceAll('__BRAND__', BRAND);
+
 function asset(path, req) {
   const a = ASSETS[path] ?? ASSETS[`${path.replace(/\/$/, '')}.html`] ?? (path === '/' ? ASSETS['/index.html'] : null);
   if (!a) return null;
-  const headers = { 'Content-Type': a.type, ETag: a.etag, 'Cache-Control': a.type.startsWith('text/html') ? 'no-cache' : 'public, max-age=300' };
-  if (req?.headers.get('If-None-Match') === a.etag) return new Response(null, { status: 304, headers });
-  return new Response(a.body, { headers });
+  const etag = `"${a.etag.slice(1, -1)}-${BRAND.length}${BRAND.replace(/[^A-Za-z0-9]/g, '')}"`;
+  const headers = { 'Content-Type': a.type, ETag: etag, 'Cache-Control': a.type.startsWith('text/html') ? 'no-cache' : 'public, max-age=300' };
+  if (req?.headers.get('If-None-Match') === etag) return new Response(null, { status: 304, headers });
+  return new Response(branded(a.body), { headers });
 }
 
 async function route(req, env) {
@@ -96,7 +102,7 @@ async function route(req, env) {
   return asset(path, req) ?? missing();
 }
 
-const missing = () => new Response(ASSETS['/missing.html'].body, { status: 404, headers: { 'Content-Type': 'text/html; charset=utf-8' } });
+const missing = () => new Response(branded(ASSETS['/missing.html'].body), { status: 404, headers: { 'Content-Type': 'text/html; charset=utf-8' } });
 
 /* ---------- Public invitation ---------- */
 

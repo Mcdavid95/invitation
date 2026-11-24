@@ -11,9 +11,9 @@
     "db:migrate": "wrangler d1 migrations apply DB --remote",
     "test": "node --test \"test/*.test.js\"",
     "sounds:upload": "for f in sounds/*.mp3; do wrangler r2 object put \"invitation-media/sounds/$(basename $f)\" --file \"$f\" --content-type audio/mpeg --remote; done",
-    "deploy:second": "wrangler deploy --env second",
-    "db:migrate:second": "wrangler d1 migrations apply DB --remote --env second",
-    "sounds:upload:second": "for f in sounds/*.mp3; do wrangler r2 object put \"invitation-media/sounds/$(basename $f)\" --file \"$f\" --content-type audio/mpeg --remote --env second; done"
+    "deploy:wedpass": "wrangler deploy --env wedpass",
+    "db:migrate:wedpass": "wrangler d1 migrations apply DB --remote --env wedpass",
+    "sounds:upload:wedpass": "for f in sounds/*.mp3; do wrangler r2 object put \"invitation-media/sounds/$(basename $f)\" --file \"$f\" --content-type audio/mpeg --remote --env wedpass; done"
   },
   "devDependencies": {
     "wrangler": "^4"

@@ -564,7 +564,7 @@ export function render(cfg, opts = {}) {
   }
   main.append(h('footer', { class: 'block reveal' },
     cfg.basics.closing ? h('p', { class: 'script closing', text: cfg.basics.closing }) : null, monoWithWreath(cfg, 'foot-mono'),
-    h('p', { class: 'made' }, 'Made with ', h('a', { href: '/', text: 'Sealed' }))));
+    h('p', { class: 'made' }, 'Made with ', h('a', { href: '/', text: '__BRAND__' }))));
 
   const music = musicButton(cfg);
   // Browsers only allow sound after a tap, so music starts on the envelope tap or the first touch.
